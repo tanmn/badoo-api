@@ -92,6 +92,13 @@ if($_SERVER['SERVER_ADDR'] == '127.0.0.1') { //本番環境
 		'log' => true
 	));
 
+    if(Configure::read('env') == 'production'){
+        App::uses('ApiError', 'Lib');
+
+        Configure::write('Error.handler', 'ApiError::handleError');
+        Configure::write('Exception.handler', 'ApiError::handleException');
+    }
+
 /**
  * Application wide charset encoding
  */

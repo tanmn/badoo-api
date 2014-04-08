@@ -104,6 +104,10 @@ class ApiController extends AppController {
         );
 
         $this->Auth->allow('test', 'isLoggedIn', 'login', 'loginSocial', 'signup', 'nearBy');
+
+        if($this->Auth->loggedIn()){
+            $this->User->id = $this->Auth->user('id');
+        }
     }
 
     public function beforeRender() {
@@ -133,6 +137,21 @@ class ApiController extends AppController {
             $this->output = array();
             $this->output['data'] = $data;
             $this->output['logs'] = $this->User->getDataSource()->getLog(false, false);
+            if(isset($this->request->params['paging'])) $this->output['paging'] = $this->request->params['paging'];
+        }
+
+        if(!empty($this->request->params['paging'])){
+            if(!Configure::read('debug')){
+                $data = $this->output;
+                $this->output = array();
+                $this->output['data'] = $data;
+            }
+
+            $paging = array_shift($this->request->params['paging']);
+            unset($paging['order']);
+            unset($paging['options']);
+            unset($paging['paramType']);
+            $this->output['paging'] = $paging;
         }
 
         echo json_encode($this->output);
@@ -306,7 +325,6 @@ class ApiController extends AppController {
             $default['UserInfo']['birthdate'] = $this->request->data['birthdate'];
 
         if(!empty($default)){
-            $this->User->id = $this->Auth->user('id');
             $result = $this->User->updateInfo($default);
 
             if($result){
@@ -374,8 +392,8 @@ class ApiController extends AppController {
      */
 
     public function friendList(){
-        $this->User->id = $this->Auth->user('id');
-        $this->output = $this->User->find('friends');
+        $this->paginate['findType'] = 'friends';
+        $this->output = $this->paginate('User');
     }
 
     public function friendRequests(){
@@ -394,7 +412,7 @@ class ApiController extends AppController {
             return;
         }
 
-        $result = $this->User->addFriend($this->Auth->user('id'), $user_id);
+        $result = $this->User->addFriend($user_id);
 
         if($result){
             $this->output = true;
@@ -409,7 +427,6 @@ class ApiController extends AppController {
             return;
         }
 
-        $this->User->id = $this->Auth->user('id');
         $result = $this->User->removeFriend($user_id);
 
         if($result){
@@ -420,11 +437,13 @@ class ApiController extends AppController {
     }
 
     public function followingList(){
-        $this->User->id = $this->Auth->user('id');
+        $this->paginate['findType'] = 'following';
+        $this->output = $this->paginate('User');
     }
 
     public function followerList(){
-        $this->User->id = $this->Auth->user('id');
+        $this->paginate['findType'] = 'follower';
+        $this->output = $this->paginate('User');
     }
 
     public function followPeople($user_id){
@@ -436,7 +455,8 @@ class ApiController extends AppController {
     }
 
     public function blockedList(){
-        $this->User->id = $this->Auth->user('id');
+        $this->paginate['findType'] = 'blocked';
+        $this->output = $this->paginate('User');
     }
 
     public function blockPeople($user_id){
@@ -448,11 +468,17 @@ class ApiController extends AppController {
     }
 
     public function likedList(){
-        $this->User->id = $this->Auth->user('id');
+        $this->paginate['findType'] = 'liked';
+        $this->output = $this->paginate('User');
     }
 
     public function likePeople($target_id){
 
+    }
+
+    public function visitorList(){
+        $this->paginate['findType'] = 'visitors';
+        $this->output = $this->paginate('User');
     }
 
     /**
@@ -473,7 +499,6 @@ class ApiController extends AppController {
             $default['SearchSetting']['search_age_to'] = $this->request->data['search_age_to'];
 
         if(!empty($default)){
-            $this->User->id = $this->Auth->user('id');
             $result = $this->User->updateSearchSettings($default);
 
             if($result){
@@ -503,7 +528,6 @@ class ApiController extends AppController {
             $default['NotificationSetting']['new_fav_flg'] = $this->request->data['new_fav_flg'];
 
         if(!empty($default)){
-            $this->User->id = $this->Auth->user('id');
             $result = $this->User->updateNotificationSettings($default);
 
             if($result){
@@ -530,7 +554,6 @@ class ApiController extends AppController {
             $default['ProfileSetting']['real_name_flg'] = $this->request->data['real_name_flg'];
 
         if(!empty($default)){
-            $this->User->id = $this->Auth->user('id');
             $result = $this->User->updateProfileSettings($default);
 
             if($result){

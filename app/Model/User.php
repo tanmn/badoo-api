@@ -17,7 +17,14 @@ App::uses('AppModel', 'Model');
  */
 class User extends AppModel {
     public $actsAs = array('Containable');
-    public $findMethods = array('friends' => true);
+    public $findMethods = array(
+        'friends' => true,
+        'follower' => true,
+        'following' => true,
+        'liked' => true,
+        'blocked' => true,
+        'visitors' => true
+    );
 
 /**
  * Validation rules
@@ -203,6 +210,20 @@ class User extends AppModel {
             'finderQuery' => '',
             'with' => 'UserFavList'
         ),
+        'Follower' => array(
+            'className' => 'User',
+            'joinTable' => NULL,
+            'foreignKey' => 'fav_user_id',
+            'associationForeignKey' => 'user_id',
+            'unique' => true,
+            'conditions' => '',
+            'fields' => '',
+            'order' => '',
+            'limit' => '',
+            'offset' => '',
+            'finderQuery' => '',
+            'with' => 'UserFavList'
+        ),
         'Liked' => array(
             'className' => 'User',
             'joinTable' => NULL,
@@ -316,16 +337,20 @@ class User extends AppModel {
         return $this->{$model_class}->save($data);
     }
 
-    public function addFriend($from, $to){
-        $request = $this->FriendRequest->findByUserFriendId($from);
+    public function addFriend($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        $request = $this->FriendRequest->findByUserFriendId($from_id);
 
         if(!empty($request)){
             return $this->FriendRequest->acceptRequest($request['FriendRequest']['id']);
         }
 
         $this->create();
-        $this->data['User']['id'] = $from;
-        $this->data['Friend']['id'] = $to;
+        $this->data['User']['id'] = $from_id;
+        $this->data['Friend']['id'] = $target_id;
 
         return $this->saveAssociated($this->data);
     }
@@ -346,6 +371,41 @@ class User extends AppModel {
                     'user_friend_id' => $target_id
                 ),
             )
+        ), false);
+    }
+
+    public function visit($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        $this->create();
+        $this->data['Visitor']['id'] = $from_id;
+        $this->data['User']['id']    = $target_id;
+
+        return $this->saveAssociated($this->data);
+    }
+
+    public function blockPeople($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        $this->create();
+        $this->data['Blocked']['id'] = $target_id;
+        $this->data['User']['id']    = $from_id;
+
+        return $this->saveAssociated($this->data);
+    }
+
+    public function unblockPeople($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        return $this->FriendRequest->deleteAll(array(
+            'user_id' => $from_id,
+            'user_blocked_id' => $target_id
         ), false);
     }
 
@@ -385,6 +445,131 @@ class User extends AppModel {
                 $query['conditions'][] = array(
                     'User.id <>' => $my_id,
                     'User.id' => $friend_ids,
+                    'User.deleted_flg' => FLAG_OFF
+                );
+            }
+
+            return $query;
+        }
+
+        return $results;
+    }
+
+    protected function _findVisitors($state, $query, $results = array()) {
+        if ($state === 'before') {
+            $my_id = isset($query['for']) ? $query['for'] : $this->id;
+
+            if(!empty($my_id)){
+                $user_ids = $this->UserVisitorList->find('list', array(
+                    'conditions' => array(
+                        'UserVisitorList.user_visitor_id' => $my_id
+                    ),
+                    'fields' => array('id', 'user_id'),
+                ));
+
+                $query['conditions'][] = array(
+                    'User.id <>' => $my_id,
+                    'User.id' => $user_ids,
+                    'User.deleted_flg' => FLAG_OFF
+                );
+            }
+
+            return $query;
+        }
+
+        return $results;
+    }
+
+    protected function _findFollower($state, $query, $results = array()) {
+        if ($state === 'before') {
+            $my_id = isset($query['for']) ? $query['for'] : $this->id;
+
+            if(!empty($my_id)){
+                $user_ids = $this->UserFavList->find('list', array(
+                    'conditions' => array(
+                        'UserFavList.fav_user_id' => $my_id
+                    ),
+                    'fields' => array('id', 'user_id'),
+                ));
+
+                $query['conditions'][] = array(
+                    'User.id <>' => $my_id,
+                    'User.id' => $user_ids,
+                    'User.deleted_flg' => FLAG_OFF
+                );
+            }
+
+            return $query;
+        }
+
+        return $results;
+    }
+
+    protected function _findFollowing($state, $query, $results = array()) {
+        if ($state === 'before') {
+            $my_id = isset($query['for']) ? $query['for'] : $this->id;
+
+            if(!empty($my_id)){
+                $user_ids = $this->UserFavList->find('list', array(
+                    'conditions' => array(
+                        'UserFavList.user_id' => $my_id
+                    ),
+                    'fields' => array('id', 'fav_user_id'),
+                ));
+
+                $query['conditions'][] = array(
+                    'User.id <>' => $my_id,
+                    'User.id' => $user_ids,
+                    'User.deleted_flg' => FLAG_OFF
+                );
+            }
+
+            return $query;
+        }
+
+        return $results;
+    }
+
+    protected function _findBlocked($state, $query, $results = array()) {
+        if ($state === 'before') {
+            $my_id = isset($query['for']) ? $query['for'] : $this->id;
+
+            if(!empty($my_id)){
+                $user_ids = $this->UserBlockedList->find('list', array(
+                    'conditions' => array(
+                        'UserBlockedList.user_id' => $my_id
+                    ),
+                    'fields' => array('id', 'user_blocked_id'),
+                ));
+
+                $query['conditions'][] = array(
+                    'User.id <>' => $my_id,
+                    'User.id' => $user_ids,
+                    'User.deleted_flg' => FLAG_OFF
+                );
+            }
+
+            return $query;
+        }
+
+        return $results;
+    }
+
+    protected function _findLiked($state, $query, $results = array()) {
+        if ($state === 'before') {
+            $my_id = isset($query['for']) ? $query['for'] : $this->id;
+
+            if(!empty($my_id)){
+                $user_ids = $this->UserLikedList->find('list', array(
+                    'conditions' => array(
+                        'UserLikedList.user_id' => $my_id
+                    ),
+                    'fields' => array('id', 'user_like_id'),
+                ));
+
+                $query['conditions'][] = array(
+                    'User.id <>' => $my_id,
+                    'User.id' => $user_ids,
                     'User.deleted_flg' => FLAG_OFF
                 );
             }

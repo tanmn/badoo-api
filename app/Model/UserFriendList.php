@@ -53,20 +53,29 @@ class UserFriendList extends AppModel {
  *
  * @var array
  */
-	// public $belongsTo = array(
-	// 	'User' => array(
-	// 		'className' => 'User',
-	// 		'foreignKey' => 'user_id',
-	// 		'conditions' => array('User.deleted_flg' => FLAG_OFF),
-	// 		'fields' => '',
-	// 		'order' => ''
-	// 	),
-	// 	'RequestedUser' => array(
-	// 		'className' => 'User',
-	// 		'foreignKey' => 'user_friend_id',
-	// 		'conditions' => array('RequestedUser.deleted_flg' => FLAG_OFF),
-	// 		'fields' => '',
-	// 		'order' => ''
-	// 	)
-	// );
+	public $belongsTo = array(
+		'FromUser' => array(
+			'className' => 'User',
+			'foreignKey' => 'user_id',
+			'conditions' => array('FromUser.deleted_flg' => FLAG_OFF),
+			'fields' => '',
+			'order' => ''
+		),
+		// 'ToUser' => array(
+		// 	'className' => 'User',
+		// 	'foreignKey' => 'user_friend_id',
+		// 	'conditions' => array('ToUser.deleted_flg' => FLAG_OFF),
+		// 	'fields' => '',
+		// 	'order' => ''
+		// )
+	);
+
+    public function acceptRequest($request_id){
+        $this->id = $request_id;
+        return $this->saveField('accepted_flg', FLAG_ON, false);
+    }
+
+    public function deleteRequest($request_id){
+        return $this->delete($request_id);
+    }
 }

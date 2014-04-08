@@ -48,7 +48,7 @@ class User extends AppModel {
                 //'allowEmpty' => false,
                 //'required' => false,
                 //'last' => false, // Stop validation after this rule
-                'on' => 'create', // Limit validation to 'create' or 'update' operations
+                // 'on' => 'create', // Limit validation to 'create' or 'update' operations
             ),
 		),
         'password' => array(
@@ -255,6 +255,23 @@ class User extends AppModel {
         return parent::beforeSave($options);
     }
 
+    public function afterFind($results, $primary = false) {
+        foreach ($results as $i => $user){
+            $avatar = 'avatars/' . $user[$this->alias]['id'] . '.jpg';
+
+            if(file_exists(IMAGES . $avatar)){
+                $avatar = Router::url('/' . IMAGES_URL . $avatar, true);
+            }else{
+                $avatar = Router::url('/' . IMAGES_URL . 'noavatar.jpg', true);
+            }
+
+            $results[$i][$this->alias]['avatar'] = $avatar;
+            unset($results[$i][$this->alias]['password']);
+        }
+
+        return $results;
+    }
+
     public function getUserIdBySns($sns_type, $sns_id){
         $result = $this->SnsInfo->find('first', array(
             'conditions' => array(
@@ -267,12 +284,69 @@ class User extends AppModel {
         return empty($result) ? null : $result['SnsInfo']['user_id'];
     }
 
+    public function updateInfo($data, $id = NULL){
+        return $this->_updateSingle('UserInfo', $data, $id);
+    }
+
+    public function updateProfileSettings($data, $id = NULL){
+        return $this->_updateSingle('ProfileSetting', $data, $id);
+    }
+
+    public function updateNotificationSettings($data, $id = NULL){
+        return $this->_updateSingle('NotificationSetting', $data, $id);
+    }
+
+    public function updateSearchSettings($data, $id = NULL){
+        return $this->_updateSingle('SearchSetting', $data, $id);
+    }
+
+    protected function _updateSingle($model_class, $data, $user_id = NULL){
+        if((!isset($this, $model_class)) || (!is_a($this->{$model_class}, 'Model'))){
+            return FALSE;
+        }
+
+        if(!empty($id)){
+            $this->create();
+            $this->id = $id;
+        }
+
+        $setting = $this->{$model_class}->findByUserId($this->id);
+        $data = Set::merge($setting, $data);
+
+        return $this->{$model_class}->save($data);
+    }
+
     public function addFriend($from, $to){
+        $request = $this->FriendRequest->findByUserFriendId($from);
+
+        if(!empty($request)){
+            return $this->FriendRequest->acceptRequest($request['FriendRequest']['id']);
+        }
+
         $this->create();
         $this->data['User']['id'] = $from;
         $this->data['Friend']['id'] = $to;
 
-        return $this->save($this->data);
+        return $this->saveAssociated($this->data);
+    }
+
+    public function removeFriend($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        return $this->FriendRequest->deleteAll(array(
+            'OR' => array(
+                array(
+                    'user_id' => $target_id,
+                    'user_friend_id' => $from_id
+                ),
+                array(
+                    'user_id' => $from_id,
+                    'user_friend_id' => $target_id
+                ),
+            )
+        ), false);
     }
 
     /**
@@ -286,7 +360,7 @@ class User extends AppModel {
             if(!empty($my_id)){
                 $friend_ids = array();
 
-                $friends = $this->FriendRequest->find('all', array(
+                $friends = $this->FriendRequest->find('list', array(
                     'conditions' => array(
                         'FriendRequest.accepted_flg' => FLAG_ON,
                         'OR' => array(
@@ -300,9 +374,9 @@ class User extends AppModel {
                 if(!empty($friends)){
                     $friend_ids = array();
 
-                    foreach($friends as $user){
-                        $friend_ids[] = $user['FriendRequest']['user_id'];
-                        $friend_ids[] = $user['FriendRequest']['user_friend_id'];
+                    foreach($friends as $user1 => $user2){
+                        $friend_ids[] = $user1;
+                        $friend_ids[] = $user2;
                     }
 
                     $friend_ids = array_unique($friend_ids);

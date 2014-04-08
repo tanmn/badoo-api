@@ -213,31 +213,31 @@ class ApiController extends AppController {
             )
         );
 
-        if(!empty($this->request->data['mail']))
+        if(isset($this->request->data['mail']))
             $default['User']['mail'] = $this->request->data['mail'];
 
-        if(!empty($this->request->data['password']))
+        if(isset($this->request->data['password']))
             $default['User']['password'] = $this->request->data['password'];
 
-        if(!empty($this->request->data['nickname']))
+        if(isset($this->request->data['nickname']))
             $default['UserInfo']['nickname'] = $this->request->data['nickname'];
 
-        if(!empty($this->request->data['birthdate']))
+        if(isset($this->request->data['birthdate']))
             $default['UserInfo']['birthdate'] = $this->request->data['birthdate'];
 
-        if(!empty($this->request->data['search_purpose']))
+        if(isset($this->request->data['search_purpose']))
             $default['SearchSetting']['search_purpose'] = $this->request->data['search_purpose'];
 
-        if(!empty($this->request->data['sns_type']) && !empty($this->request->data['sns_id'])){
+        if(isset($this->request->data['sns_type']) && isset($this->request->data['sns_id'])){
             $default['SnsInfo'] = array(
                 'sns_type' => $this->request->data['sns_type'],
                 'sns_id' => $this->request->data['sns_id']
             );
 
-            if(!empty($this->request->data['auth_token']))
+            if(isset($this->request->data['auth_token']))
                 $default['SnsInfo']['auth_token'] = $this->request->data['auth_token'];
 
-            if(!empty($this->request->data['auth_token_secret']))
+            if(isset($this->request->data['auth_token_secret']))
                 $default['SnsInfo']['auth_token_secret'] = $this->request->data['auth_token_secret'];
         }
 
@@ -285,26 +285,41 @@ class ApiController extends AppController {
     }
 
     public function updateInfo(){
-        $update_info = array();
+        $default = array();
 
-        if(!empty($this->request->data['nickname']) && !$this->Auth->user('UserInfo.nickname'))
-            $default['User']['nickname'] = $this->request->data['nickname'];
+        if(isset($this->request->data['nickname']) && !$this->Auth->user('UserInfo.nickname'))
+            $default['UserInfo']['nickname'] = $this->request->data['nickname'];
 
-        if(!empty($this->request->data['first_name']))
-            $default['User']['first_name'] = $this->request->data['first_name'];
+        if(isset($this->request->data['first_name']))
+            $default['UserInfo']['first_name'] = $this->request->data['first_name'];
 
-        if(!empty($this->request->data['last_name']))
-            $default['User']['last_name'] = $this->request->data['last_name'];
+        if(isset($this->request->data['last_name']))
+            $default['UserInfo']['last_name'] = $this->request->data['last_name'];
 
-        if(!empty($this->request->data['gender']))
-            $default['User']['gender'] = $this->request->data['gender'];
+        if(isset($this->request->data['gender']))
+            $default['UserInfo']['gender'] = $this->request->data['gender'];
 
-        if(!empty($this->request->data['location']))
+        if(isset($this->request->data['location']))
             $default['UserInfo']['location'] = $this->request->data['location'];
 
-        if(!empty($this->request->data['birthdate']))
+        if(isset($this->request->data['birthdate']))
             $default['UserInfo']['birthdate'] = $this->request->data['birthdate'];
 
+        if(!empty($default)){
+            $this->User->id = $this->Auth->user('id');
+            $result = $this->User->updateInfo($default);
+
+            if($result){
+                $this->_manualLogin($this->Auth->user('id'));
+            }else if(!empty($this->User->UserInfo->validationErrors)){
+                $this->errors = $this->User->UserInfo->validationErrors;
+            }else{
+                $this->errors = __('Cannot save member info.');
+            }
+            return;
+        }
+
+        $this->errors = __('Nothing to be updated.');
     }
 
     public function isLoggedIn(){
@@ -364,8 +379,8 @@ class ApiController extends AppController {
     }
 
     public function friendRequests(){
-        $this->User->id = $this->Auth->user('id');
-
+        $this->User->FriendRequest->recursive = 0;
+        $this->output = $this->User->FriendRequest->findAllByUserFriendId($this->Auth->user('id'));
     }
 
     public function addFriend($user_id){
@@ -384,12 +399,24 @@ class ApiController extends AppController {
         if($result){
             $this->output = true;
         }else{
-            $this->errors = __('Cannot create new member.');
+            $this->errors = __('Cannot send friend request.');
         }
     }
 
     public function removeFriend($user_id){
+        if(empty($user_id) || $this->Auth->user('id') == $user_id){
+            $this->errors = __('Friend\'s id is invalid.', $user_id);
+            return;
+        }
 
+        $this->User->id = $this->Auth->user('id');
+        $result = $this->User->removeFriend($user_id);
+
+        if($result){
+            $this->output = true;
+        }else{
+            $this->errors = __('Cannot send unfriend request.');
+        }
     }
 
     public function followingList(){
@@ -433,15 +460,90 @@ class ApiController extends AppController {
      */
 
     public function updateSearch(){
+        if(isset($this->request->data['search_purpose']))
+            $default['SearchSetting']['search_purpose'] = $this->request->data['search_purpose'];
 
+        if(isset($this->request->data['search_gender']))
+            $default['SearchSetting']['search_gender'] = $this->request->data['search_gender'];
+
+        if(isset($this->request->data['search_age_from']))
+            $default['SearchSetting']['search_age_from'] = $this->request->data['search_age_from'];
+
+        if(isset($this->request->data['search_age_to']))
+            $default['SearchSetting']['search_age_to'] = $this->request->data['search_age_to'];
+
+        if(!empty($default)){
+            $this->User->id = $this->Auth->user('id');
+            $result = $this->User->updateSearchSettings($default);
+
+            if($result){
+                $this->_manualLogin($this->Auth->user('id'));
+            }else if(!empty($this->User->SearchSetting->validationErrors)){
+                $this->errors = $this->User->SearchSetting->validationErrors;
+            }else{
+                $this->errors = __('Cannot save search settings.');
+            }
+            return;
+        }
+
+        $this->errors = __('Nothing to be updated.');
     }
 
     public function updateNotificationSettings(){
+        if(isset($this->request->data['new_message_flg']))
+            $default['NotificationSetting']['new_message_flg'] = $this->request->data['new_message_flg'];
 
+        if(isset($this->request->data['new_visitor_flg']))
+            $default['NotificationSetting']['new_visitor_flg'] = $this->request->data['new_visitor_flg'];
+
+        if(isset($this->request->data['new_liked_flg']))
+            $default['NotificationSetting']['new_liked_flg'] = $this->request->data['new_liked_flg'];
+
+        if(isset($this->request->data['new_fav_flg']))
+            $default['NotificationSetting']['new_fav_flg'] = $this->request->data['new_fav_flg'];
+
+        if(!empty($default)){
+            $this->User->id = $this->Auth->user('id');
+            $result = $this->User->updateNotificationSettings($default);
+
+            if($result){
+                $this->_manualLogin($this->Auth->user('id'));
+            }else if(!empty($this->User->NotificationSetting->validationErrors)){
+                $this->errors = $this->User->NotificationSetting->validationErrors;
+            }else{
+                $this->errors = __('Cannot save notification settings.');
+            }
+            return;
+        }
+
+        $this->errors = __('Nothing to be updated.');
     }
 
     public function updateProfileSettings(){
+        if(isset($this->request->data['online_status_flg']))
+            $default['ProfileSetting']['online_status_flg'] = $this->request->data['online_status_flg'];
 
+        if(isset($this->request->data['location_flg']))
+            $default['ProfileSetting']['location_flg'] = $this->request->data['location_flg'];
+
+        if(isset($this->request->data['real_name_flg']))
+            $default['ProfileSetting']['real_name_flg'] = $this->request->data['real_name_flg'];
+
+        if(!empty($default)){
+            $this->User->id = $this->Auth->user('id');
+            $result = $this->User->updateProfileSettings($default);
+
+            if($result){
+                $this->_manualLogin($this->Auth->user('id'));
+            }else if(!empty($this->User->ProfileSetting->validationErrors)){
+                $this->errors = $this->User->ProfileSetting->validationErrors;
+            }else{
+                $this->errors = __('Cannot save profile settings.');
+            }
+            return;
+        }
+
+        $this->errors = __('Nothing to be updated.');
     }
 
     /**

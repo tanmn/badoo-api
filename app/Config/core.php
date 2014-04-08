@@ -22,6 +22,7 @@
  * Include constants
  */
 require_once(APP . 'Config' . DS . 'constants.php');
+require_once(APP . 'Config' . DS . 'validates.php');
 
 /**
  * CakePHP Debug Level:

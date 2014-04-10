@@ -40,11 +40,11 @@ class AppController extends Controller {
      * @param mixed $response
      */
     public function __construct($request = null, $response = null) {
-        parent::__construct($request, $response);
-
-        if (Configure::read('debug') && !$this->request->is('ajax')) {
+        if (onfigure::read('env') == 'development' && !$this->request->is('ajax')) {
             $this->components[] = 'DebugKit.Toolbar';
         }
+
+        parent::__construct($request, $response);
     }
 
     public function beforeFilter() {

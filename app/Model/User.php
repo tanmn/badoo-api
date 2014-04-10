@@ -23,7 +23,8 @@ class User extends AppModel {
         'following' => true,
         'liked' => true,
         'blocked' => true,
-        'visitors' => true
+        'visitors' => true,
+        'encounter' => true
     );
 
 /**
@@ -296,7 +297,7 @@ class User extends AppModel {
 
         // do not show blocked user
         if($query['type'] != 'blocked' && !empty($my_id)){
-            $blocked_ids = $this->UserBlockedList->find('list', array(
+            $blocked_ids = $this->Blocked->UserBlockedList->find('list', array(
                 'conditions' => array(
                     'UserBlockedList.user_id' => $my_id
                 ),
@@ -432,7 +433,7 @@ class User extends AppModel {
             $from_id = $this->id;
         }
 
-        return $from_id && (bool) $this->UserVisitorList->find('count', array(
+        return $from_id && (bool) $this->Visitor->UserVisitorList->find('count', array(
             'conditions' => array(
                 'UserVisitorList.user_id' => $target_id,
                 'UserVisitorList.user_visitor_id' => $from_id,
@@ -461,7 +462,7 @@ class User extends AppModel {
             $from_id = $this->id;
         }
 
-        return (!$from_id) || (bool) $this->UserBlockedList->find('count', array(
+        return (!$from_id) || (bool) $this->Blocked->UserBlockedList->find('count', array(
             'conditions' => array(
                 'UserBlockedList.user_id' => $from_id,
                 'UserBlockedList.user_blocked_id' => $target_id,
@@ -490,7 +491,7 @@ class User extends AppModel {
             $from_id = $this->id;
         }
 
-        return $this->UserBlockedList->deleteAll(array(
+        return $this->Blocked->UserBlockedList->deleteAll(array(
             'user_id' => $from_id,
             'user_blocked_id' => $target_id
         ), false);
@@ -501,7 +502,7 @@ class User extends AppModel {
             $from_id = $this->id;
         }
 
-        return $from_id && (bool) $this->UserLikedList->find('count', array(
+        return $from_id && (bool) $this->Liked->UserLikedList->find('count', array(
             'conditions' => array(
                 'UserLikedList.user_id' => $from_id,
                 'UserLikedList.user_like_id' => $target_id,
@@ -530,7 +531,7 @@ class User extends AppModel {
             $from_id = $this->id;
         }
 
-        return $this->UserLikedList->deleteAll(array(
+        return $this->Liked->UserLikedList->deleteAll(array(
             'user_id' => $from_id,
             'user_like_id' => $target_id
         ), false);
@@ -541,7 +542,7 @@ class User extends AppModel {
             $from_id = $this->id;
         }
 
-        return $from_id && (bool) $this->UserFavList->find('count', array(
+        return $from_id && (bool) $this->Favorite->UserFavList->find('count', array(
             'conditions' => array(
                 'UserFavList.user_id' => $from_id,
                 'UserFavList.fav_user_id' => $target_id,
@@ -554,7 +555,7 @@ class User extends AppModel {
             $from_id = $this->id;
         }
 
-        return $from_id && (bool) $this->UserFavList->find('count', array(
+        return $from_id && (bool) $this->Favorite->UserFavList->find('count', array(
             'conditions' => array(
                 'UserFavList.user_id' => $target_id,
                 'UserFavList.fav_user_id' => $from_id,
@@ -583,7 +584,7 @@ class User extends AppModel {
             $from_id = $this->id;
         }
 
-        return $this->UserFavList->deleteAll(array(
+        return $this->Favorite->UserFavList->deleteAll(array(
             'user_id' => $from_id,
             'user_like_id' => $target_id
         ), false);
@@ -642,7 +643,7 @@ class User extends AppModel {
             $my_id = isset($query['for']) ? $query['for'] : $this->id;
 
             if(!empty($my_id)){
-                $user_ids = $this->UserVisitorList->find('list', array(
+                $user_ids = $this->Visitor->UserVisitorList->find('list', array(
                     'conditions' => array(
                         'UserVisitorList.user_visitor_id' => $my_id
                     ),
@@ -669,7 +670,7 @@ class User extends AppModel {
             $my_id = isset($query['for']) ? $query['for'] : $this->id;
 
             if(!empty($my_id)){
-                $user_ids = $this->UserFavList->find('list', array(
+                $user_ids = $this->Favorite->UserFavList->find('list', array(
                     'conditions' => array(
                         'UserFavList.fav_user_id' => $my_id
                     ),
@@ -696,7 +697,7 @@ class User extends AppModel {
             $my_id = isset($query['for']) ? $query['for'] : $this->id;
 
             if(!empty($my_id)){
-                $user_ids = $this->UserFavList->find('list', array(
+                $user_ids = $this->Favorite->UserFavList->find('list', array(
                     'conditions' => array(
                         'UserFavList.user_id' => $my_id
                     ),
@@ -723,7 +724,7 @@ class User extends AppModel {
             $my_id = isset($query['for']) ? $query['for'] : $this->id;
 
             if(!empty($my_id)){
-                $user_ids = $this->UserBlockedList->find('list', array(
+                $user_ids = $this->Blocked->UserBlockedList->find('list', array(
                     'conditions' => array(
                         'UserBlockedList.user_id' => $my_id
                     ),
@@ -750,7 +751,7 @@ class User extends AppModel {
             $my_id = isset($query['for']) ? $query['for'] : $this->id;
 
             if(!empty($my_id)){
-                $user_ids = $this->UserLikedList->find('list', array(
+                $user_ids = $this->Liked->UserLikedList->find('list', array(
                     'conditions' => array(
                         'UserLikedList.user_id' => $my_id
                     ),
@@ -762,6 +763,35 @@ class User extends AppModel {
                     'User.id' => $user_ids,
                     'User.deleted_flg' => FLAG_OFF
                 );
+
+                $query['for'] = $my_id;
+            }
+
+            return $query;
+        }
+
+        return $results;
+    }
+
+    protected function _findEncounter($state, $query, $results = array()) {
+        if ($state === 'before') {
+            $my_id = isset($query['for']) ? $query['for'] : $this->id;
+
+            if(!empty($my_id)){
+                $user_ids = $this->Liked->UserLikedList->find('list', array(
+                    'conditions' => array(
+                        'UserLikedList.user_id' => $my_id
+                    ),
+                    'fields' => array('id', 'user_like_id'),
+                ));
+
+                $query['conditions'][] = array(
+                    'User.id <>' => $my_id,
+                    'User.id NOT' => $user_ids,
+                    'User.deleted_flg' => FLAG_OFF
+                );
+
+                $query['order'] = 'rand()';
 
                 $query['for'] = $my_id;
             }

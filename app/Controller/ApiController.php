@@ -352,12 +352,33 @@ class ApiController extends AppController {
     }
 
     public function profile($id = NULL){
-        if(empty($id) || ($this->Auth->user('id') == $id)) return $this->me();
+        if(empty($id)) $id = $this->Auth->user('id');
+
+        $profile = $this->User->find(
+            'first',
+            array(
+                'conditions' => array(
+                    $this->Auth->authenticate['Form']['scope'],
+                    'User.id' => $id
+                ),
+                'contain' => array(
+                    'UserInfo' => array(
+                        'nickname',
+                        'birthdate',
+                        'first_name',
+                        'last_name',
+                        'gender'
+                    ),
+                )
+            )
+        );
 
         // perform visit action
-        if($this->Auth->loggedIn()){
+        if($this->Auth->loggedIn() && $profile){
             $this->User->visit($id);
         }
+
+        $this->output = $profile ? $profile : null;
     }
 
 
@@ -635,11 +656,21 @@ class ApiController extends AppController {
      */
 
     public function nearBy($long = NULL, $lat = NULL){
-
+        $this->output = $this->paginate('User');
     }
 
     public function encounter(){
-
+        $this->paginate['findType'] = 'encounter';
+        $this->paginate['contain'] = array(
+            'UserInfo' => array(
+                'nickname',
+                'birthdate',
+                'first_name',
+                'last_name',
+                'gender'
+            )
+        );
+        $this->output = $this->paginate('User');
     }
 
     /**

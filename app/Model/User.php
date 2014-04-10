@@ -287,7 +287,6 @@ class User extends AppModel {
             }
 
             $results[$i][$this->alias]['avatar'] = $avatar;
-            unset($results[$i][$this->alias]['password']);
         }
 
         return $results;

@@ -132,10 +132,13 @@ class ApiController extends AppController {
         }
 
         // append sql logs
-        if(Configure::read('debug') && empty($this->errors)){
-            $data = $this->output;
-            $this->output = array();
-            $this->output['data'] = $data;
+        if(Configure::read('debug')){
+            if(empty($this->errors)){
+                $data = $this->output;
+                $this->output = array();
+                $this->output['data'] = $data;
+            }
+            
             $this->output['logs'] = $this->User->getDataSource()->getLog(false, false);
             if(isset($this->request->params['paging'])) $this->output['paging'] = $this->request->params['paging'];
         }

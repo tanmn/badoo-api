@@ -40,7 +40,7 @@ class AppController extends Controller {
      * @param mixed $response
      */
     public function __construct($request = null, $response = null) {
-        if (onfigure::read('env') == 'development' && !$this->request->is('ajax')) {
+        if (Configure::read('env') == 'development' && !$this->request->is('ajax')) {
             $this->components[] = 'DebugKit.Toolbar';
         }
 

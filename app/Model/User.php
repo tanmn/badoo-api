@@ -266,6 +266,20 @@ class User extends AppModel {
             'finderQuery' => '',
             'with' => 'UserVisitorList'
         ),
+        'Interest' => array(
+            'className' => 'Interest',
+            'joinTable' => NULL,
+            'foreignKey' => 'user_id',
+            'associationForeignKey' => 'interest_id',
+            'unique' => true,
+            'conditions' => '',
+            'fields' => '',
+            'order' => '',
+            'limit' => '',
+            'offset' => '',
+            'finderQuery' => '',
+            'with' => 'UserInterest'
+        ),
     );
 
     public function beforeSave($options = array()) {

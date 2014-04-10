@@ -1,12 +1,19 @@
 <?php
 App::uses('AppModel', 'Model');
 /**
- * UserAlbum Model
+ * Interest Model
  *
- * @property User $User
+ * @property Category $Category
  */
-class UserAlbum extends AppModel {
+class Interest extends AppModel {
     public $actsAs = array('Containable');
+
+/**
+ * Use table
+ *
+ * @var mixed False or table name
+ */
+	public $useTable = 'interest';
 
 /**
  * Validation rules
@@ -14,30 +21,40 @@ class UserAlbum extends AppModel {
  * @var array
  */
 	public $validate = array(
-		'user_id' => array(
+		'category_id' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				//'message' => 'Your custom message here',
+				'message' => 'Invalid category id',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
-		'album_name' => array(
+		'name' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
+				'message' => 'Please enter interest name',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
-		'public_type' => array(
+		'used_time' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
-				//'message' => 'Your custom message here',
+				'message' => 'Used time must be a number',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			),
+		),
+		'approve_flg' => array(
+			'boolean' => array(
+				'rule' => array('boolean'),
+				// 'message' => 'Your custom message here',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
@@ -54,33 +71,29 @@ class UserAlbum extends AppModel {
  * @var array
  */
 	public $belongsTo = array(
-		'User' => array(
-			'className' => 'User',
-			'foreignKey' => 'user_id',
+		'Category' => array(
+			'className' => 'MsInterestCategory',
+			'foreignKey' => 'category_id',
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
 		)
 	);
 
-    public $hasMany = array(
-        'Photo' => array(
-            'className' => 'AlbumPhoto',
-            'foreignKey' => 'album_id',
-            'dependent' => false,
+    public $hasAndBelongsToMany = array(
+        'User' => array(
+            'className' => 'User',
+            'joinTable' => NULL,
+            'foreignKey' => 'interest_id',
+            'associationForeignKey' => 'user_id',
+            'unique' => true,
             'conditions' => '',
             'fields' => '',
             'order' => '',
             'limit' => '',
             'offset' => '',
-            'exclusive' => '',
             'finderQuery' => '',
-            'counterQuery' => ''
+            'with' => 'UserInterest'
         ),
     );
-
-
-    public function afterDelete(){
-        $this->Photo->updateAll(array('album_id' => NULL), array('Photo.album_id' => $this->id));
-    }
 }

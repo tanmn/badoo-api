@@ -38,7 +38,7 @@ require_once(APP . 'Config' . DS . 'validates.php');
  * In development mode, you need to click the flash message to continue.
  */
 
-if($_SERVER['SERVER_ADDR'] == '127.0.0.1') { //本番環境
+if(empty($_SERVER['SERVER_ADDR']) || $_SERVER['SERVER_ADDR'] == '127.0.0.1') { //本番環境
     Configure::write('env', 'development');
     Configure::write('debug', 2);
 } else { //開発環境

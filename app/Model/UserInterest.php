@@ -1,12 +1,19 @@
 <?php
 App::uses('AppModel', 'Model');
 /**
- * UserAlbum Model
+ * UserInterest Model
  *
- * @property User $User
+ * @property Usr $Usr
+ * @property Interest $Interest
  */
-class UserAlbum extends AppModel {
-    public $actsAs = array('Containable');
+class UserInterest extends AppModel {
+
+/**
+ * Use table
+ *
+ * @var mixed False or table name
+ */
+	public $useTable = 'user_interest';
 
 /**
  * Validation rules
@@ -14,7 +21,7 @@ class UserAlbum extends AppModel {
  * @var array
  */
 	public $validate = array(
-		'user_id' => array(
+		'usr_id' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
 				//'message' => 'Your custom message here',
@@ -24,17 +31,7 @@ class UserAlbum extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
 		),
-		'album_name' => array(
-			'notEmpty' => array(
-				'rule' => array('notEmpty'),
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
-		),
-		'public_type' => array(
+		'interest_id' => array(
 			'numeric' => array(
 				'rule' => array('numeric'),
 				//'message' => 'Your custom message here',
@@ -57,30 +54,16 @@ class UserAlbum extends AppModel {
 		'User' => array(
 			'className' => 'User',
 			'foreignKey' => 'user_id',
+			'conditions' => array('User.deleted_flg' => FLAG_OFF),
+			'fields' => '',
+			'order' => ''
+		),
+		'Interest' => array(
+			'className' => 'Interest',
+			'foreignKey' => 'interest_id',
 			'conditions' => '',
 			'fields' => '',
 			'order' => ''
 		)
 	);
-
-    public $hasMany = array(
-        'Photo' => array(
-            'className' => 'AlbumPhoto',
-            'foreignKey' => 'album_id',
-            'dependent' => false,
-            'conditions' => '',
-            'fields' => '',
-            'order' => '',
-            'limit' => '',
-            'offset' => '',
-            'exclusive' => '',
-            'finderQuery' => '',
-            'counterQuery' => ''
-        ),
-    );
-
-
-    public function afterDelete(){
-        $this->Photo->updateAll(array('album_id' => NULL), array('Photo.album_id' => $this->id));
-    }
 }

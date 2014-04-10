@@ -103,7 +103,7 @@ class ApiController extends AppController {
             )
         );
 
-        $this->Auth->allow('test', 'isLoggedIn', 'login', 'loginSocial', 'signup', 'nearBy');
+        $this->Auth->allow('test', 'isLoggedIn', 'login', 'loginSocial', 'signup', 'nearBy', 'profile');
 
         if($this->Auth->loggedIn()){
             $this->User->id = $this->Auth->user('id');
@@ -352,7 +352,7 @@ class ApiController extends AppController {
     }
 
     public function profile($id = NULL){
-        if(empty($id)) return $this->me();
+        if(empty($id) || ($this->Auth->user('id') == $id)) return $this->me();
 
         // perform visit action
         if($this->Auth->loggedIn()){
@@ -647,7 +647,12 @@ class ApiController extends AppController {
      */
 
     public function test(){
-        $this->output = $_SERVER;
+        // test all users
+        // $this->User->create();
+        // $this->output = $this->User->find('all');
+
+        // test if user is blocked
+        $this->output = $this->User->isBlocked(1);
         return;
 
         $this->User->create();

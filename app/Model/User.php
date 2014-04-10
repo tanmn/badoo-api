@@ -269,11 +269,34 @@ class User extends AppModel {
     );
 
     public function beforeSave($options = array()) {
+        // hash password
         if(!empty($this->data[$this->alias]['password'])){
             $this->data[$this->alias]['password'] = Security::hash($this->data[$this->alias]['password'], null, true);
         }
 
         return parent::beforeSave($options);
+    }
+
+    public function beforeFind($query) {
+        $my_id = isset($query['for']) ? $query['for'] : $this->id;
+
+        // do not show blocked user
+        if($query['type'] != 'blocked' && !empty($my_id)){
+            $blocked_ids = $this->UserBlockedList->find('list', array(
+                'conditions' => array(
+                    'UserBlockedList.user_id' => $my_id
+                ),
+                'fields' => array('id', 'user_blocked_id'),
+            ));
+
+            if(!empty($blocked_ids)){
+                $query['conditions'][] = array(
+                    $this->alias . '.id NOT' => $blocked_ids
+                );
+            }
+        }
+
+        return $query;
     }
 
     public function afterFind($results, $primary = false) {
@@ -336,12 +359,25 @@ class User extends AppModel {
         return $this->{$model_class}->save($data);
     }
 
+    public function isFriend($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        return (!$from_id) || (bool) $this->UserFriendList->find('count', array(
+            'conditions' => array(
+                'UserFriendList.user_id' => $from_id,
+                'UserFriendList.user_friend_id' => $target_id,
+            )
+        ));
+    }
+
     public function addFriend($target_id, $from_id = NULL){
         if(empty($from_id)){
             $from_id = $this->id;
         }
 
-        if(!$this->exists($target_id)){
+        if(!$this->exists($target_id) || $this->isBlocked($target_id, $from_id)){
             return false;
         }
 
@@ -377,6 +413,19 @@ class User extends AppModel {
         ), false);
     }
 
+    public function visited($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        return $from_id && (bool) $this->UserVisitorList->find('count', array(
+            'conditions' => array(
+                'UserVisitorList.user_id' => $target_id,
+                'UserVisitorList.user_visitor_id' => $from_id,
+            )
+        ));
+    }
+
     public function visit($target_id, $from_id = NULL){
         if(empty($from_id)){
             $from_id = $this->id;
@@ -393,12 +442,25 @@ class User extends AppModel {
         return $this->saveAssociated($this->data);
     }
 
+    public function isBlocked($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        return (!$from_id) || (bool) $this->UserBlockedList->find('count', array(
+            'conditions' => array(
+                'UserBlockedList.user_id' => $from_id,
+                'UserBlockedList.user_blocked_id' => $target_id,
+            )
+        ));
+    }
+
     public function blockPeople($target_id, $from_id = NULL){
         if(empty($from_id)){
             $from_id = $this->id;
         }
 
-        if(!$this->exists($target_id)){
+        if(!$this->exists($target_id) || $this->isBlocked($target_id, $from_id)){
             return false;
         }
 
@@ -420,12 +482,25 @@ class User extends AppModel {
         ), false);
     }
 
+    public function isLiked($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        return $from_id && (bool) $this->UserLikedList->find('count', array(
+            'conditions' => array(
+                'UserLikedList.user_id' => $from_id,
+                'UserLikedList.user_like_id' => $target_id,
+            )
+        ));
+    }
+
     public function likePeople($target_id, $from_id = NULL){
         if(empty($from_id)){
             $from_id = $this->id;
         }
 
-        if(!$this->exists($target_id)){
+        if(!$this->exists($target_id) || $this->isBlocked($target_id, $from_id)){
             return false;
         }
 
@@ -447,12 +522,38 @@ class User extends AppModel {
         ), false);
     }
 
+    public function isFollowing($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        return $from_id && (bool) $this->UserFavList->find('count', array(
+            'conditions' => array(
+                'UserFavList.user_id' => $from_id,
+                'UserFavList.fav_user_id' => $target_id,
+            )
+        ));
+    }
+
+    public function isFollowerOf($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        return $from_id && (bool) $this->UserFavList->find('count', array(
+            'conditions' => array(
+                'UserFavList.user_id' => $target_id,
+                'UserFavList.fav_user_id' => $from_id,
+            )
+        ));
+    }
+
     public function followPeople($target_id, $from_id = NULL){
         if(empty($from_id)){
             $from_id = $this->id;
         }
 
-        if(!$this->exists($target_id)){
+        if(!$this->exists($target_id) || $this->isBlocked($target_id, $from_id)){
             return false;
         }
 
@@ -512,6 +613,8 @@ class User extends AppModel {
                     'User.id' => $friend_ids,
                     'User.deleted_flg' => FLAG_OFF
                 );
+
+                $query['for'] = $my_id;
             }
 
             return $query;
@@ -537,6 +640,8 @@ class User extends AppModel {
                     'User.id' => $user_ids,
                     'User.deleted_flg' => FLAG_OFF
                 );
+
+                $query['for'] = $my_id;
             }
 
             return $query;
@@ -562,6 +667,8 @@ class User extends AppModel {
                     'User.id' => $user_ids,
                     'User.deleted_flg' => FLAG_OFF
                 );
+
+                $query['for'] = $my_id;
             }
 
             return $query;
@@ -587,6 +694,8 @@ class User extends AppModel {
                     'User.id' => $user_ids,
                     'User.deleted_flg' => FLAG_OFF
                 );
+
+                $query['for'] = $my_id;
             }
 
             return $query;
@@ -612,6 +721,8 @@ class User extends AppModel {
                     'User.id' => $user_ids,
                     'User.deleted_flg' => FLAG_OFF
                 );
+
+                $query['for'] = $my_id;
             }
 
             return $query;
@@ -637,6 +748,8 @@ class User extends AppModel {
                     'User.id' => $user_ids,
                     'User.deleted_flg' => FLAG_OFF
                 );
+
+                $query['for'] = $my_id;
             }
 
             return $query;

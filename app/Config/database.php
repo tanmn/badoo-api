@@ -15,7 +15,7 @@ class DATABASE_CONFIG {
     public $production = array(
         'datasource' => 'Database/Mysql',
         'persistent' => false,
-        'host' => '127.0.0.1',
+        'host' => '192.168.1.224',
         'login' => 'root',
         //'password' => 'password',
         'database' => 'badoo',

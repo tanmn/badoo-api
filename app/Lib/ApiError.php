@@ -2,10 +2,7 @@
 App::uses('ErrorHandler', 'Error');
 
 class ApiError extends ErrorHandler {
-    public static function handleError($code, $description, $file = null,
-        $line = null, $context = null) {
-        self::error(__('There is an error occurred.'));
-
+    public static function handleError($code, $description, $file = null, $line = null, $context = null) {
         list($error, $log) = self::mapErrorCode($code);
         $message = $error . ' (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';
         if (!empty($errorConfig['trace'])) {
@@ -13,16 +10,15 @@ class ApiError extends ErrorHandler {
             $message .= "\nTrace:\n" . $trace . "\n";
         }
 
-        CakeLog::write('debug', $message);
-
-        return CakeLog::write($log, $message);
+        CakeLog::write($log, $message);
+        self::error(__('There is an error occurred.'));
     }
 
     public static function handleException($error) {
-        self::error(__('Bad request.'));
-
         $config = Configure::read('Exception');
         self::_log($exception, $config);
+
+        self::error(__('Bad request.'));
     }
 
     protected static function error($message = NULL){

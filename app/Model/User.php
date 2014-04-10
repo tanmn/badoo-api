@@ -296,7 +296,7 @@ class User extends AppModel {
         $my_id = isset($query['for']) ? $query['for'] : $this->id;
 
         // do not show blocked user
-        if($query['type'] != 'blocked' && !empty($my_id)){
+        if(!empty($my_id) && (empty($query['type']) || $query['type'] != 'blocked')){
             $blocked_ids = $this->Blocked->UserBlockedList->find('list', array(
                 'conditions' => array(
                     'UserBlockedList.user_id' => $my_id

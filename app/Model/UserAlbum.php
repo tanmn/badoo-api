@@ -99,7 +99,7 @@ class UserAlbum extends AppModel {
 
     public function afterFind($results, $primary = false) {
         foreach($results as $index => $album){
-            if(!isset($album[$this->alias])) return;
+            if(!isset($album[$this->alias]['album_name'])) return;
 
             if($album[$this->alias]['album_name'] == self::DEFAULT_NAME){
                 $results[$index][$this->alias]['album_name'] = __('Uncategorized');

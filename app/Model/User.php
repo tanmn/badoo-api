@@ -341,6 +341,10 @@ class User extends AppModel {
             $from_id = $this->id;
         }
 
+        if(!$this->exists($target_id)){
+            return false;
+        }
+
         $request = $this->FriendRequest->findByUserFriendId($from_id);
 
         if(!empty($request)){
@@ -378,6 +382,10 @@ class User extends AppModel {
             $from_id = $this->id;
         }
 
+        if(!$this->exists($target_id)){
+            return false;
+        }
+
         $this->create();
         $this->data['Visitor']['id'] = $from_id;
         $this->data['User']['id']    = $target_id;
@@ -388,6 +396,10 @@ class User extends AppModel {
     public function blockPeople($target_id, $from_id = NULL){
         if(empty($from_id)){
             $from_id = $this->id;
+        }
+
+        if(!$this->exists($target_id)){
+            return false;
         }
 
         $this->create();
@@ -402,9 +414,63 @@ class User extends AppModel {
             $from_id = $this->id;
         }
 
-        return $this->FriendRequest->deleteAll(array(
+        return $this->UserBlockedList->deleteAll(array(
             'user_id' => $from_id,
             'user_blocked_id' => $target_id
+        ), false);
+    }
+
+    public function likePeople($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        if(!$this->exists($target_id)){
+            return false;
+        }
+
+        $this->create();
+        $this->data['Liked']['id'] = $target_id;
+        $this->data['User']['id']    = $from_id;
+
+        return $this->saveAssociated($this->data);
+    }
+
+    public function unlikePeople($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        return $this->UserLikedList->deleteAll(array(
+            'user_id' => $from_id,
+            'user_like_id' => $target_id
+        ), false);
+    }
+
+    public function followPeople($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        if(!$this->exists($target_id)){
+            return false;
+        }
+
+        $this->create();
+        $this->data['Favorite']['id'] = $target_id;
+        $this->data['User']['id']    = $from_id;
+
+        return $this->saveAssociated($this->data);
+    }
+
+    public function unfollowPeople($target_id, $from_id = NULL){
+        if(empty($from_id)){
+            $from_id = $this->id;
+        }
+
+        return $this->UserFavList->deleteAll(array(
+            'user_id' => $from_id,
+            'user_like_id' => $target_id
         ), false);
     }
 

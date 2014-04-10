@@ -138,7 +138,7 @@ class ApiController extends AppController {
                 $this->output = array();
                 $this->output['data'] = $data;
             }
-            
+
             $this->output['logs'] = $this->User->getDataSource()->getLog(false, false);
             if(isset($this->request->params['paging'])) $this->output['paging'] = $this->request->params['paging'];
         }
@@ -348,8 +348,16 @@ class ApiController extends AppController {
     }
 
     public function me(){
-        // $this->output = $this->Auth->user();
         $this->output = $this->Auth->user();
+    }
+
+    public function profile($id = NULL){
+        if(empty($id)) return $this->me();
+
+        // perform visit action
+        if($this->Auth->loggedIn()){
+            $this->User->visit($id);
+        }
     }
 
 
@@ -404,8 +412,8 @@ class ApiController extends AppController {
         $this->output = $this->User->FriendRequest->findAllByUserFriendId($this->Auth->user('id'));
     }
 
-    public function addFriend($user_id){
-        if(!$this->User->exists($user_id)){
+    public function addFriend($user_id = ''){
+        if(empty($user_id) || !$this->User->exists($user_id)){
             $this->errors = __('User %s does not exist.', $user_id);
             return;
         }
@@ -424,7 +432,7 @@ class ApiController extends AppController {
         }
     }
 
-    public function removeFriend($user_id){
+    public function removeFriend($user_id = ''){
         if(empty($user_id) || $this->Auth->user('id') == $user_id){
             $this->errors = __('Friend\'s id is invalid.', $user_id);
             return;
@@ -449,12 +457,29 @@ class ApiController extends AppController {
         $this->output = $this->paginate('User');
     }
 
-    public function followPeople($user_id){
+    public function followPeople($user_id = ''){
+        if($this->Auth->user('id') == $user_id){
+            $this->errors = __('You cannot follow yourself.');
+            return;
+        }
 
+        $result = $this->User->followPeople($user_id);
+
+        if($result){
+            $this->output = true;
+        }else{
+            $this->errors = __('Cannot send follow request.');
+        }
     }
 
-    public function unfollowPeople($user_id){
+    public function unfollowPeople($user_id = ''){
+        $result = $this->User->unfollowPeople($user_id);
 
+        if($result){
+            $this->output = true;
+        }else{
+            $this->errors = __('Cannot send unfollow request.');
+        }
     }
 
     public function blockedList(){
@@ -462,12 +487,34 @@ class ApiController extends AppController {
         $this->output = $this->paginate('User');
     }
 
-    public function blockPeople($user_id){
+    public function blockPeople($user_id = ''){
+        if($this->Auth->user('id') == $user_id){
+            $this->errors = __('You cannot block yourself.');
+            return;
+        }
 
+        $result = $this->User->blockPeople($user_id);
+
+        if($result){
+            $this->output = true;
+        }else{
+            $this->errors = __('Cannot send block request.');
+        }
     }
 
-    public function unblockPeople($user_id){
+    public function unblockPeople($user_id = ''){
+        if(empty($user_id) || $this->Auth->user('id') == $user_id){
+            $this->errors = __('User\'s id is invalid.', $user_id);
+            return;
+        }
 
+        $result = $this->User->unblockPeople($user_id);
+
+        if($result){
+            $this->output = true;
+        }else{
+            $this->errors = __('Cannot send unblock request.');
+        }
     }
 
     public function likedList(){
@@ -475,8 +522,19 @@ class ApiController extends AppController {
         $this->output = $this->paginate('User');
     }
 
-    public function likePeople($target_id){
+    public function likePeople($user_id = ''){
+        if($this->Auth->user('id') == $user_id){
+            $this->errors = __('You cannot like yourself.');
+            return;
+        }
 
+        $result = $this->User->likePeople($user_id);
+
+        if($result){
+            $this->output = true;
+        }else{
+            $this->errors = __('Cannot send like request.');
+        }
     }
 
     public function visitorList(){

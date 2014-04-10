@@ -51,4 +51,14 @@ class AlbumPhoto extends AppModel {
 			'order' => ''
 		)
 	);
+
+    public function checkOwner($owner_id){
+        return (bool) $this->find('count', array(
+            'conditions' => array(
+                'Album.user_id' => $owner_id,
+                $this->alias . '.id' => $this->id
+            ),
+            'recursive' => 0,
+        ));
+    }
 }

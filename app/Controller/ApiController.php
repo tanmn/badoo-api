@@ -407,7 +407,17 @@ class ApiController extends AppController {
     }
 
     public function deleteAlbum($album_id){
+        $this->User->Album->id = $album_id;
 
+        if($this->User->Album->checkOwner($this->Auth->user('id'))){
+            if($this->User->Album->delete()){
+                $this->output = true;
+            }else{
+                $this->errors = __('Cannot delete the album.');
+            }
+        }else{
+            $this->errors = __('You can only delete your albums.');
+        }
     }
 
     public function uploadPhoto($albumId = null){
@@ -415,7 +425,17 @@ class ApiController extends AppController {
     }
 
     public function deletePhoto($photo_id){
+        $this->User->Album->Photo->id = $photo_id;
 
+        if($this->User->Album->Photo->checkOwner($this->Auth->user('id'))){
+            if($this->User->Album->Photo->delete()){
+                $this->output = true;
+            }else{
+                $this->errors = __('Cannot delete the photo.');
+            }
+        }else{
+            $this->errors = __('You can only delete your photos.');
+        }
     }
 
 
@@ -683,7 +703,11 @@ class ApiController extends AppController {
         // $this->output = $this->User->find('all');
 
         // test if user is blocked
-        $this->output = $this->User->isBlocked(1);
+        // $this->output = $this->User->isBlocked(1);
+
+        // test default album
+        $this->output = $this->User->Album->getDefaultAlbumId($this->Auth->user('id'));
+        $this->output = $this->User->Album->findByUserId($this->Auth->user('id'));
         return;
 
         $this->User->create();

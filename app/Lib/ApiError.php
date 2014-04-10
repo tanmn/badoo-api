@@ -12,6 +12,9 @@ class ApiError extends ErrorHandler {
             $trace = Debugger::trace(array('start' => 1, 'format' => 'log'));
             $message .= "\nTrace:\n" . $trace . "\n";
         }
+
+        CakeLog::write('debug', $message);
+
         return CakeLog::write($log, $message);
     }
 
@@ -24,7 +27,7 @@ class ApiError extends ErrorHandler {
 
     protected static function error($message = NULL){
         header('Content-type: text/json; charset=utf-8');
-        header('Status: 400 Bad Request');
+        header('HTTP/1.1 400 Bad Request', true, 400);
 
         echo json_encode(array(
             'error' => true,

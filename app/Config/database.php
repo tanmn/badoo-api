@@ -15,11 +15,10 @@ class DATABASE_CONFIG {
     public $production = array(
         'datasource' => 'Database/Mysql',
         'persistent' => false,
-        'host' => '192.168.1.224',
+        'host' => '127.0.0.1',
         'login' => 'root',
         //'password' => 'password',
         'database' => 'badoo',
-        'prefix' => '',
         'encoding' => 'utf8',
     );
 /*

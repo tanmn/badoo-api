@@ -1,0 +1,137 @@
+# LANGUAGE translation of CakePHP Application
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Badoo\n"
+"POT-Creation-Date: 2014-04-11 08:24+0200\n"
+"PO-Revision-Date: 2014-04-11 13:33+0700\n"
+"Last-Translator: Shin <tanmn@leverages.jp>\n"
+"Language-Team: LLV <tanmn@leverages.jp>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 1.6.3\n"
+"Language: vi\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#: Controller/ApiController.php:185
+msgid "Email and password are incorrect."
+msgstr "Email và mật khẩu đăng nhập không đúng."
+
+#: Controller/ApiController.php:191
+msgid "You are not logged in."
+msgstr "Bạn chưa đăng nhập."
+
+#: Controller/ApiController.php:203
+msgid "Please provide SNS's type and id"
+msgstr "Vui lòng cung cấp tên mạng xã hội và ID của thành viên."
+
+#: Controller/ApiController.php:278
+msgid "Cannot create new member."
+msgstr "Không thể tạo thành viên mới."
+
+#: Controller/ApiController.php:337
+msgid "Cannot save member info."
+msgstr "Không thể lưu thông tin thành viên."
+
+#: Controller/ApiController.php:342;613;642;668
+msgid "Nothing to be updated."
+msgstr "Không có thông tin nào được cập nhật."
+
+#: Controller/ApiController.php:413
+msgid "Cannot delete the album."
+msgstr "Không thể xóa album ảnh."
+
+#: Controller/ApiController.php:416
+msgid "You can only delete your albums."
+msgstr "Bạn chỉ được phép xóa album của bản thân."
+
+#: Controller/ApiController.php:431
+msgid "Cannot delete the photo."
+msgstr "Không thể xóa ảnh."
+
+#: Controller/ApiController.php:434
+msgid "You can only delete your photos."
+msgstr "Bạn chỉ được phép xóa hình ảnh của bản thân."
+
+#: Controller/ApiController.php:455
+msgid "User %s does not exist."
+msgstr "Thành viên %s không tồn tại."
+
+#: Controller/ApiController.php:460
+msgid "You cannot add yourself as a friend."
+msgstr "Bạn không thể thêm chính bạn làm bạn bè."
+
+#: Controller/ApiController.php:469
+msgid "Cannot send friend request."
+msgstr "Không thể gửi yêu cầu kết bạn."
+
+#: Controller/ApiController.php:475
+msgid "Friend's id is invalid."
+msgstr "ID của bạn bè không hợp lệ."
+
+#: Controller/ApiController.php:484
+msgid "Cannot send unfriend request."
+msgstr "Không thể gửi yêu cầu hủy kết bạn."
+
+#: Controller/ApiController.php:500
+msgid "You cannot follow yourself."
+msgstr "Bạn không thể theo dõi chính bạn."
+
+#: Controller/ApiController.php:509
+msgid "Cannot send follow request."
+msgstr "Không thể gửi yêu cầu theo dõi người dùng."
+
+#: Controller/ApiController.php:519
+msgid "Cannot send unfollow request."
+msgstr "Không thể gửi yêu cầu bỏ theo dõi người dùng."
+
+#: Controller/ApiController.php:530
+msgid "You cannot block yourself."
+msgstr "Bạn không thể chặn chính bạn."
+
+#: Controller/ApiController.php:539
+msgid "Cannot send block request."
+msgstr "Không thể gửi yêu cầu chặn người dùng."
+
+#: Controller/ApiController.php:545
+msgid "User's id is invalid."
+msgstr "ID của thành viên không đúng."
+
+#: Controller/ApiController.php:554
+msgid "Cannot send unblock request."
+msgstr "Không thể gửi yêu cầu bỏ chặn người dùng."
+
+#: Controller/ApiController.php:565
+msgid "You cannot like yourself."
+msgstr "Bạn không thể yêu thích chính bạn."
+
+#: Controller/ApiController.php:574
+msgid "Cannot send like request."
+msgstr "Không thể gửi yêu cầu yêu thích người dùng."
+
+#: Controller/ApiController.php:608
+msgid "Cannot save search settings."
+msgstr "Không thể lưu tùy chọn tìm kiếm."
+
+#: Controller/ApiController.php:637
+msgid "Cannot save notification settings."
+msgstr "Không thể lưu tùy chỉnh thông báo."
+
+#: Controller/ApiController.php:663
+msgid "Cannot save profile settings."
+msgstr "Không thể lưu tùy chỉnh thông tin cá nhân."
+
+#: Lib/ApiError.php:17
+msgid "There is an error occurred."
+msgstr "Đã xảy ra lỗi tại máy chủ."
+
+#: Lib/ApiError.php:24
+msgid "Bad request."
+msgstr "Truy vấn không hợp lệ."
+
+#: Model/UserAlbum.php:105
+msgid "Uncategorized"
+msgstr "Chưa phân loại"

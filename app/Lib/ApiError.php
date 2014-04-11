@@ -6,7 +6,10 @@ class ApiError extends ErrorHandler {
         list($error, $log) = self::mapErrorCode($code);
         $message = $error . ' (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';
         if (!empty($errorConfig['trace'])) {
-            $trace = Debugger::trace(array('start' => 1, 'format' => 'log'));
+            $trace = Debugger::trace(array(
+                'start' => 1,
+                'format' => 'log'
+            ));
             $message .= "\nTrace:\n" . $trace . "\n";
         }
 
@@ -21,7 +24,7 @@ class ApiError extends ErrorHandler {
         self::error(__('Bad request.'));
     }
 
-    protected static function error($message = NULL){
+    protected static function error($message = NULL) {
         header('Content-type: text/json; charset=utf-8');
         header('HTTP/1.1 400 Bad Request', true, 400);
 

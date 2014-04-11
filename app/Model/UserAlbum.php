@@ -154,7 +154,7 @@ class UserAlbum extends AppModel {
         if($this->save(array(
             'user_id' => $user_id,
             'album_name' => self::DEFAULT_NAME,
-        ), false)) return $this->id;
+        ), true)) return $this->id;
 
         return NULL;
     }

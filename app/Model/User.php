@@ -316,6 +316,8 @@ class User extends AppModel {
 
     public function afterFind($results, $primary = false) {
         foreach ($results as $i => $user){
+            if(empty($user[$this->alias]['id'])) continue;
+
             $avatar = 'avatars/' . $user[$this->alias]['id'] . '.jpg';
 
             if(file_exists(IMAGES . $avatar)){

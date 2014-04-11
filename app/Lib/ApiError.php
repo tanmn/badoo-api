@@ -14,7 +14,7 @@ class ApiError extends ErrorHandler {
         self::error(__('There is an error occurred.'));
     }
 
-    public static function handleException($error) {
+    public static function handleException(Exception $exception) {
         $config = Configure::read('Exception');
         self::_log($exception, $config);
 

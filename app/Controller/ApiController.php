@@ -102,7 +102,7 @@ class ApiController extends AppController {
             )
         );
 
-        $this->Auth->allow('test', 'isLoggedIn', 'login', 'loginSocial', 'signup', 'nearBy', 'profile');
+        $this->Auth->allow('test', 'isLoggedIn', 'login', 'loginSocial', 'signup', 'nearBy', 'profile', 'encounter');
 
         if ($this->Auth->loggedIn()) {
             $this->User->id = $this->Auth->user('id');
@@ -144,6 +144,7 @@ class ApiController extends AppController {
                 $this->output['paging'] = $this->request->params['paging'];
         }
 
+        // paging
         if (!empty($this->request->params['paging'])) {
             if (!Configure::read('debug')) {
                 $data = $this->output;
@@ -384,23 +385,80 @@ class ApiController extends AppController {
      */
 
     public function uploadAvatar() {
+        if(!($this->request->is('post') && !empty($this->request->data['avatar']))){
+            $this->errors = __('Invalid upload request.');
+            return;
+        }
 
+        $avatar_file = $this->request->data['avatar'];
+        $result = $this->User->saveAvatar($avatar_file);
+
+        if($result === true){
+            $avatar = $this->User->getAvatarURL();
+            $this->Session->write('Auth.User.avatar', $avatar);
+            $this->output = $avatar;
+        }else{
+            $this->errors = $result;
+        }
     }
 
     public function deleteAvatar() {
-
+        if($this->User->deleteAvatar() === true){
+            $avatar = $this->User->getAvatarURL();
+            $this->Session->write('Auth.User.avatar', $avatar);
+            $this->output = $avatar;
+        }else{
+            $this->errors = __('Cannot delete avatar.');
+        }
     }
 
     public function albums($user_id = null) {
+        if(empty($user_id)){
+            $user_id = $this->Auth->user('id');
+        }
 
+        $this->output = $this->User->Album->find(
+            'all',
+            array(
+                'contain' => array('Photo'),
+                'conditions' => array(
+                    'Album.user_id' => $user_id
+                )
+            )
+        );
     }
 
-    public function photos($album_id = null) {
+    public function album($album_id = null){
+        $this->User->Album->id = $album_id;
+    }
+
+    public function photo($photo_id = null){
 
     }
 
     public function createAlbum() {
+        $default = array(
+            'album_name' => '',
+            'public_type' => 0,
+            'user_id' => $this->Auth->user('id')
+        );
 
+        if (isset($this->request->data['name']))
+            $default['album_name'] = trim($this->request->data['name']);
+
+        if (isset($this->request->data['type']))
+            $default['public_type'] = $this->request->data['type'];
+
+        $this->User->Album->create();
+        $result = $this->User->Album->saveAssociated($default);
+
+        if ($result) {
+            $this->output = $this->User->Album->id;
+        } else if (!empty($this->User->Album->validationErrors)) {
+            $this->errors = $this->User->Album->validationErrors;
+        } else {
+            $this->errors = __('Cannot create new album.');
+        }
     }
 
     public function deleteAlbum($album_id) {
@@ -678,6 +736,7 @@ class ApiController extends AppController {
 
     public function encounter() {
         $this->paginate['findType'] = 'encounter';
+        $this->paginate['order'] = 'rand()';
         $this->paginate['contain'] = array(
             'UserInfo' => array(
                 'nickname',
@@ -707,44 +766,68 @@ class ApiController extends AppController {
         // $this->output = $this->User->Album->findByUserId($this->Auth->user('id'));
         return;
 
-        $this->User->create();
-        $result = $this->User->saveAssociated(array(
-            'User' => array(
-                'mail' => 'tanmn@leverages.jp',
-                'password' => '123456',
-                'delete_flg' => FLAG_OFF
-            ),
-            'UserInfo' => array(
-                'first_name' => 'Tan',
-                'last_name' => 'Mai',
-                'nickname' => 'shin',
-                'location' => 'Ho Chi Minh',
-                'gender' => 1,
-                'birthdate' => '1990-04-13'
-            ),
-            'SearchSetting' => array(
-                'search_purpose' => 1,
-                'search_gender' => 2,
-                'search_age_from' => 18,
-                'search_age_to' => 24
-            ),
-            'ProfileSetting' => array(
-                'online_status_flg' => FLAG_ON,
-                'location_flg' => FLAG_ON,
-                'real_name_flg' => FLAG_ON
-            ),
-            'NotificationSetting' => array(
-                'new_message_flg' => FLAG_ON,
-                'new_visitor_flg' => FLAG_ON,
-                'new_liked_flg' => FLAG_ON,
-                'new_fav_flg' => FLAG_ON
-            )
-        ));
+        $names = explode('|', 'Aaliyah|Aaron|Abigail|Adam|Addison|Adrian|Aiden|Alex|Alexa|Alexander|Alexandra|Alexis|Allison|Alyssa|Amelia|Andrea|Andrew|Angel|Anna|Annabelle|Anthony|Aria|Ariana|Arianna|Ashley|Aubree|Aubrey|Audrey|Austin|Autumn|Ava|Avery|Ayden|Bailey|Bella|Benjamin|Bentley|Blake|Brandon|Brayden|Brianna|Brody|Brooklyn|Bryson|Caleb|Cameron|Camila|Carlos|Caroline|Carson|Carter|Charles|Charlotte|Chase|Chloe|Christian|Christopher|Claire|Colton|Connor|Cooper|Damian|Daniel|David|Dominic|Dylan|Easton|Eli|Elijah|Elizabeth|Ella|Ellie|Emily|Emma|Ethan|Eva|Evan|Evelyn|Faith|Gabriel|Gabriella|Gavin|Genesis|Gianna|Grace|Grayson|Hailey|Hannah|Harper|Henry|Hudson|Hunter|Ian|Isaac|Isabella|Isaiah|Jace|Jack|Jackson|Jacob|James|Jasmine|Jason|Jaxon|Jayden|Jeremiah|Jocelyn|John|Jonathan|Jordan|Jose|Joseph|Joshua|Josiah|Juan|Julia|Julian|Justin|Katherine|Kayden|Kayla|Kaylee|Kennedy|Kevin|Khloe|Kimberly|Kylie|Landon|Lauren|Layla|Leah|Levi|Liam|Lillian|Lily|Logan|London|Lucas|Lucy|Luis|Luke|Lydia|Mackenzie|Madeline|Madelyn|Madison|Makayla|Mason|Matthew|Maya|Melanie|Mia|Michael|Molly|Morgan|Naomi|Natalie|Nathan|Nathaniel|Nevaeh|Nicholas|Noah|Nolan|Oliver|Olivia|Owen|Parker|Peyton|Piper|Reagan|Riley|Robert|Ryan|Ryder|Samantha|Samuel|Sarah|Savannah|Scarlett|Sebastian|Serenity|Skylar|Sofia|Sophia|Sophie|Stella|Sydney|Taylor|Thomas|Trinity|Tristan|Tyler|Victoria|Violet|William|Wyatt|Xavier|Zachary|Zoe|Zoey');
 
-        if ($result) {
-            $this->output['id'] = $this->User->id;
-        } else {
-            $this->errors = $this->User->validationErrors;
+        $num_user = 100;
+
+        $this->User->getDataSource()->begin();
+
+        for($i = 0; $i < $num_user; $i++){
+            $rand = array_rand($names, 2);
+            $first_name = $names[$rand[0]];
+            $last_name = $names[$rand[1]];
+            $mail = strtolower("{$first_name}.{$last_name}@test.local");
+            $nickname = strtolower("{$first_name}_{$last_name}");
+            $gender = rand(0,2);
+            $search_purpose = rand(1, 3);
+            $birthdate = date('Y-m-d', rand(strtotime('1980-01-01'), strtotime('2000-12-31')));
+
+            $user = array(
+                'User' => array(
+                    'mail' => $mail,
+                    'password' => '123456',
+                    'delete_flg' => FLAG_OFF
+                ),
+                'UserInfo' => array(
+                    'first_name' => $first_name,
+                    'last_name' => $last_name,
+                    'nickname' => $nickname,
+                    'location' => 'Ho Chi Minh',
+                    'gender' => $gender,
+                    'birthdate' => '1990-04-13'
+                ),
+                'SearchSetting' => array(
+                    'search_purpose' => $search_purpose,
+                    'search_gender' => rand(0,2),
+                    'search_age_from' => 18,
+                    'search_age_to' => 24
+                ),
+                'ProfileSetting' => array(
+                    'online_status_flg' => FLAG_ON,
+                    'location_flg' => FLAG_ON,
+                    'real_name_flg' => FLAG_ON
+                ),
+                'NotificationSetting' => array(
+                    'new_message_flg' => FLAG_ON,
+                    'new_visitor_flg' => FLAG_ON,
+                    'new_liked_flg' => FLAG_ON,
+                    'new_fav_flg' => FLAG_ON
+                )
+            );
+
+            $this->User->create();
+            $result = $this->User->saveAssociated($user);
+            // $result = true;
+
+            if ($result) {
+                $user['id'] = $this->User->id;
+                $this->output[] = $user;
+            } else {
+                $this->errors = $this->User->validationErrors;
+                $this->User->getDataSource()->rollback();
+                return;
+            }
         }
+        $this->User->getDataSource()->commit();
     }
 }

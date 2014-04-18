@@ -318,18 +318,28 @@ class User extends AppModel {
         foreach ($results as $i => $user){
             if(empty($user[$this->alias]['id'])) continue;
 
-            $avatar = 'avatars/' . $user[$this->alias]['id'] . '.jpg';
-
-            if(file_exists(IMAGES . $avatar)){
-                $avatar = Router::url('/' . IMAGES_URL . $avatar, true);
-            }else{
-                $avatar = Router::url('/' . IMAGES_URL . 'noavatar.jpg', true);
-            }
-
-            $results[$i][$this->alias]['avatar'] = $avatar;
+            $results[$i][$this->alias]['avatar'] = $this->getAvatarURL($user[$this->alias]['id']);
         }
 
         return $results;
+    }
+
+    public function getAvatarURL($user_id = NULL){
+        if(empty($user_id)){
+            $user_id = $this->id;
+        }
+
+        $avatar = 'avatars/' . $user_id . '.jpg';
+
+        if(file_exists(IMAGES . $avatar)){
+            // for better caching
+            $file_date = filemtime(IMAGES . $avatar);
+            $avatar = Router::url('/' . IMAGES_URL . $avatar . '?' . $file_date, true);
+        }else{
+            $avatar = Router::url('/' . IMAGES_URL . 'noavatar.jpg', true);
+        }
+
+        return $avatar;
     }
 
     public function getUserIdBySns($sns_type, $sns_id){
@@ -590,6 +600,71 @@ class User extends AppModel {
             'user_id' => $from_id,
             'user_like_id' => $target_id
         ), false);
+    }
+
+    public function saveAvatar($file_data = array()){
+        if(empty($this->id)){
+            return __('User is not set.');
+        }
+
+        $result = $this->validateAvatar($file_data);
+
+        if($result === true){
+            try{
+                $destination = IMAGES . 'avatars/' . $this->id . '.jpg';
+
+                App::import('Lib', 'ImageResizer');
+
+                $tool = new ImageResizer();
+                try {
+                    $tool->prepare($file_data['tmp_name']);
+                    $tool->resize(180, 180, 220, 220, 220);
+                    $tool->save($destination, 70);
+                }
+                catch (Exception $e) {
+                    CakeLog::write('upload', 'Cannot save user avatar.' . $e->getMessage());
+                }
+
+                @unlink($file_data['tmp_name']);
+
+                return true;
+            }catch(Exception $e){
+                CakeLog::write('upload', $e->getMessage());
+
+                return __('Cannot upload avatar.');
+            }
+        }
+
+        return $result;
+    }
+
+    public function deleteAvatar(){
+        if(empty($this->id)){
+            return __('User is not set.');
+        }
+
+        try{
+            unlink(IMAGES . 'avatars/' . $this->id . '.jpg');
+
+            return true;
+        }catch(Exception $e){
+            CakeLog::write('upload', $e->getMessage());
+
+            return __('Cannot delete avatar.');
+        }
+    }
+
+    protected function validateAvatar($file_data){
+        if (empty($file_data['tmp_name']))
+            return __('Uploaded file is broken.');
+
+        if ($file_data['size'] > USER_AVATAR_ALLOWED_SIZE)
+            return __('The file size must be under %s.', CakeNumber::toReadableSize(USER_AVATAR_ALLOWED_SIZE));
+
+        if (!preg_match('/image\/(png|gif|jpeg)/i', $file_data['type']))
+            return __('File type is not allowed.');
+
+        return true;
     }
 
     /**

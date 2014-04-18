@@ -182,6 +182,11 @@ class ApiController extends AppController {
      */
 
     public function login() {
+        if ($this->Auth->loggedIn()) {
+            $this->output = $this->Auth->user();
+            return;
+        }
+
         if (isset($this->request->data['mail'])) {
             $this->request->data['User'] = array(
                 'mail' => @$this->request->data['mail'],

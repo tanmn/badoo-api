@@ -1,102 +1,114 @@
 # LANGUAGE translation of CakePHP Application
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2014-04-11 08:24+0200\n"
-"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
-"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Project-Id-Version: Badoo Mobile APIs\n"
+"POT-Creation-Date: 2014-04-18 06:54+0200\n"
+"PO-Revision-Date: 2014-04-18 12:02+0700\n"
+"Last-Translator: Shin <tanmn@leverages.jp>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 1.6.4\n"
+"Language: vi\n"
 
 #: Model/AlbumPhoto.php:validation for field album_id
-#: Model/UserAlbum.php:validation for field user_id;validation for field public_type
-#: Model/UserBlockedList.php:validation for field user_id;validation for field user_blocked_id
-#: Model/UserFavList.php:validation for field user_id;validation for field fav_user_id
-#: Model/UserFriendList.php:validation for field user_id;validation for field user_friend_id
-#: Model/UserInfo.php:validation for field user_id
-#: Model/UserInterest.php:validation for field usr_id;validation for field interest_id
-#: Model/UserLikedList.php:validation for field user_id;validation for field user_like_id
-#: Model/UserNotificationSetting.php:validation for field user_id
-#: Model/UserProfileSetting.php:validation for field user_id
-#: Model/UserSearchSetting.php:validation for field user_id;validation for field search_gender;validation for field search_age_from;validation for field search_age_to
-#: Model/UserSnsInfo.php:validation for field user_id
-#: Model/UserVisitorList.php:validation for field user_id;validation for field user_visitor_id
+#: Model/UserBlockedList.php:validation user_id;validation user_blocked_id
+#: Model/UserFavList.php:validation fav_user_id
+#: Model/UserFriendList.php:validation user_friend_id
+#: Model/UserInfo.php:validation user_id Model/UserInterest.php:validation
+#: usr_id;validation interest_id Model/UserLikedList.php:validation
+#: user_like_id Model/UserNotificationSetting.php:validation
+#: Model/UserProfileSetting.php:validation
+#: Model/UserSearchSetting.php:validation search_gender;validation
+#: search_age_from;validation search_age_to Model/UserSnsInfo.php:validation
+#: Model/UserVisitorList.php:validation user_visitor_id
 msgid "numeric"
-msgstr ""
+msgstr "Vui lòng nhập số."
 
 #: Model/AlbumPhoto.php:validation for field photo
-#: Model/UserAlbum.php:validation for field album_name
-#: Model/UserSnsInfo.php:validation for field sns_type;validation for field sns_id;validation for field auth_token;validation for field auth_token_secret
+#: Model/UserSnsInfo.php:validation sns_type;validation sns_id;validation
+#: auth_token;validation auth_token_secret
 msgid "notEmpty"
-msgstr ""
+msgstr "Không thể để trống."
 
 #: Model/Interest.php:validation for field category_id
 msgid "Invalid category id"
-msgstr ""
+msgstr "ID danh mục không hợp lệ."
 
 #: Model/Interest.php:validation for field name
 msgid "Please enter interest name"
-msgstr ""
+msgstr "Vui lòng nhập tên sở thích."
 
 #: Model/Interest.php:validation for field used_time
 msgid "Used time must be a number"
 msgstr ""
 
 #: Model/Interest.php:validation for field approve_flg
-#: Model/User.php:validation for field deleted_flg
-#: Model/UserFriendList.php:validation for field accepted_flg
-#: Model/UserNotificationSetting.php:validation for field new_message_flg;validation for field new_visitor_flg;validation for field new_liked_flg;validation for field new_fav_flg
-#: Model/UserProfileSetting.php:validation for field online_status_flg;validation for field location_flg;validation for field real_name_flg
+#: Model/User.php:validation deleted_flg Model/UserFriendList.php:validation
+#: accepted_flg Model/UserNotificationSetting.php:validation
+#: new_message_flg;validation new_visitor_flg;validation
+#: new_liked_flg;validation new_fav_flg
+#: Model/UserProfileSetting.php:validation online_status_flg;validation
+#: location_flg;validation real_name_flg
 msgid "boolean"
-msgstr ""
+msgstr "Chỉ nhận giá trị 1 hoặc 0"
 
 #: Model/MsInterestCategory.php:validation for field category_name
 msgid "Please enter category name"
-msgstr ""
+msgstr "Vui lòng nhập tên danh mục."
 
 #: Model/User.php:validation for field mail
 msgid "Please enter email address"
-msgstr ""
+msgstr "Vui lòng nhập địa chỉ email."
 
 #: Model/User.php:validation for field mail
 msgid "Your email is not valid"
-msgstr ""
+msgstr "Email không hợp lệ."
 
 #: Model/User.php:validation for field mail
 msgid "The email was used by another member"
-msgstr ""
+msgstr "Email này đã sử dụng bởi thành viên khác."
 
 #: Model/User.php:validation for field password
 msgid "Your password should have at least 6 characters"
-msgstr ""
+msgstr "Mật khẩu tối thiểu dài 6 kí tự."
+
+#: Model/UserAlbum.php:validation for field user_id
+msgid "User is not set."
+msgstr "Không xác định được người dùng."
+
+#: Model/UserAlbum.php:validation for field album_name
+msgid "Please enter the album name."
+msgstr "Vui lòng nhập tên album."
+
+#: Model/UserAlbum.php:validation for field public_type
+msgid "Please choose a type."
+msgstr "Vui lòng chọn loại."
 
 #: Model/UserInfo.php:validation for field nickname
 msgid "Please choose a nickname"
-msgstr ""
+msgstr "Vui lòng chọn một nickname."
 
 #: Model/UserInfo.php:validation for field nickname
 msgid "Only characters 0-9, a-z and underscores can be used in nickname"
-msgstr ""
+msgstr "Nickname chỉ được chứa các kí tự a-z, 0-9 và dấu gạch dưới _."
 
 #: Model/UserInfo.php:validation for field nickname
 msgid "That nickname was used by another member"
-msgstr ""
+msgstr "Nickname này đã sử dụng bởi thành viên khác."
 
 #: Model/UserInfo.php:validation for field nickname
 msgid "Your nickname should contain 4 ~ 20 characters"
-msgstr ""
+msgstr "Nickname chỉ chứa từ 4 - 20 kí tự."
 
 #: Model/UserInfo.php:validation for field birthdate
 msgid "Your birthday is not a valid date"
-msgstr ""
+msgstr "Ngày sinh không hợp lệ."
 
 #: Model/UserSearchSetting.php:validation for field search_purpose
 msgid "Invalid search purpose"
-msgstr ""
-
+msgstr "Nhu cầu tìm bạn không hợp lệ."

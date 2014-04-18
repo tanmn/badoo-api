@@ -429,7 +429,42 @@ class ApiController extends AppController {
     }
 
     public function album($album_id = null){
+        if(empty($album_id)){
+            $this->errors = __('Invalid album id.');
+            return;
+        }
+
         $this->User->Album->id = $album_id;
+
+
+        // for testing
+
+        App::uses('Folder', 'Utility');
+        $folder = new Folder(WWW_ROOT . 'files' . DS . 'samples' . DS);
+        $files = $folder->find('.*\.jpg');
+        $random = array_rand($files, rand(1,6));
+
+        $output = array();
+
+        $default_id = $this->User->Album->getDefaultAlbumId($this->User->id);
+        $this->User->Album->id = $default_id;
+        $album = $this->User->Album->read();
+
+        foreach($random as $index){
+            $url = Router::url('/files/samples/' . $files[$index], true);
+            $output[] = array(
+                'id' => $index,
+                'album_id' => $default_id,
+                'photo' => $url,
+                'created' => date('Y-m-d H:i:s'),
+                'modified' => date('Y-m-d H:i:s')
+            );
+        }
+
+        $this->output = array(
+            'Album' => $album['Album'],
+            'Photo' => $output
+        );
     }
 
     public function photo($photo_id = null){

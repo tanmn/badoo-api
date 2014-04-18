@@ -37,6 +37,8 @@ class ApiController extends AppController {
     public $output = null;
     public $errors = null;
 
+    public $test_user = false;
+
     public $paginate = array('limit' => 10);
 
     public function beforeFilter($options = array()) {
@@ -51,6 +53,10 @@ class ApiController extends AppController {
             $locale = $this->request->query['locale'];
 
             Configure::write('Config.language', $locale);
+        }
+
+        if (!empty($this->request->query['test_user'])) {
+            $this->test_user = $this->request->query['test_user'];
         }
 
         // test only
@@ -103,6 +109,10 @@ class ApiController extends AppController {
         );
 
         $this->Auth->allow('test', 'isLoggedIn', 'login', 'loginSocial', 'signup', 'nearBy', 'profile', 'encounter');
+
+        if($this->test_user){
+            $this->_manualLogin($this->test_user);
+        }
 
         if ($this->Auth->loggedIn()) {
             $this->User->id = $this->Auth->user('id');

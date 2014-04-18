@@ -26,8 +26,8 @@ class DATABASE_CONFIG {
         'datasource' => 'Database/Mysql',
         'persistent' => false,
         'host' => '127.0.0.1',
-        'login' => 'test',
-        'password' => '3HsB3pbMbhG',
+        'login' => 'test_badoo',
+        'password' => '3GPI7GUMhZc',
         'database' => 'test_badoo',
         'encoding' => 'utf8',
     );

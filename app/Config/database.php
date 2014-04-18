@@ -21,6 +21,16 @@ class DATABASE_CONFIG {
         'database' => 'badoo',
         'encoding' => 'utf8',
     );
+
+    public $test = array(
+        'datasource' => 'Database/Mysql',
+        'persistent' => false,
+        'host' => '127.0.0.1',
+        'login' => 'test',
+        'password' => '3HsB3pbMbhG',
+        'database' => 'test_badoo',
+        'encoding' => 'utf8',
+    );
 /*
 	public $mysql = array(
 		'datasource' => 'Database/Mysql',
@@ -51,6 +61,8 @@ class DATABASE_CONFIG {
         // switch environment settings for production
         if(Configure::read('env') == 'production'){
             $this->default = $this->production;
+        }else if(Configure::read('env') == 'test'){
+            $this->default = $this->test;
         }
     }
 }

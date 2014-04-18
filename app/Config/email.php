@@ -31,6 +31,20 @@ class EmailConfig {
         'headerCharset' => 'utf-8',
     );
 
+    public $test = array(
+        'transport' => 'Smtp',
+        'from' => array('site@localhost' => 'My Site'),
+        'host' => 'localhost',
+        'port' => 25,
+        'timeout' => 30,
+        'username' => 'user',
+        'password' => 'secret',
+        'client' => null,
+        'log' => false,
+        'charset' => 'utf-8',
+        'headerCharset' => 'utf-8',
+    );
+
 /*
     public $default = array(
         'transport' => 'Mail',
@@ -91,6 +105,8 @@ class EmailConfig {
         // switch environment settings for production
         if(Configure::read('debug') == 0){
             $this->default = $this->production;
+        }else if(Configure::read('env') == 'test'){
+            $this->default = $this->test;
         }
     }
 }

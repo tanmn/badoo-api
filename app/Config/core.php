@@ -41,7 +41,10 @@ require_once(APP . 'Config' . DS . 'validates.php');
 if(empty($_SERVER['SERVER_ADDR']) || $_SERVER['SERVER_ADDR'] == '127.0.0.1') { //本番環境
     Configure::write('env', 'development');
     Configure::write('debug', 2);
-} else { //開発環境
+} else if($_SERVER['HTTP_HOST'] == 'test.leverages.vn') {
+    Configure::write('env', 'test');
+    Configure::write('debug', 0);
+} else {
     Configure::write('env', 'production');
     Configure::write('debug', 0);
 }
@@ -93,7 +96,7 @@ if(empty($_SERVER['SERVER_ADDR']) || $_SERVER['SERVER_ADDR'] == '127.0.0.1') { /
 		'log' => true
 	));
 
-    if(Configure::read('env') == 'production'){
+    if(Configure::read('env') != 'development'){
         App::uses('ApiError', 'Lib');
 
         Configure::write('Error.handler', 'ApiError::handleError');

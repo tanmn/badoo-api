@@ -844,7 +844,7 @@ class ApiController extends AppController {
                     'nickname' => $nickname,
                     'location' => 'Ho Chi Minh',
                     'gender' => $gender,
-                    'birthdate' => '1990-04-13'
+                    'birthdate' => $birthdate
                 ),
                 'SearchSetting' => array(
                     'search_purpose' => $search_purpose,

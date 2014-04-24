@@ -66,4 +66,24 @@ class AppModel extends Model {
 
         return $data;
     }
+
+    public function afterFind($results, $primary = false) {
+        $alias = $this->alias;
+
+        foreach($results as $index => $item){
+            foreach($item[$alias] as $column => $data){
+                $type = $this->getColumnType($column);
+
+                if($type == 'date'){
+                    $data = strtotime($data);
+
+                    if($data) $results[$index][$alias][$column] = date('m-d-Y', $data);
+                }/*else if($type == 'datetime'){
+                    $results[$index][$alias][$column] = date('')
+                }*/
+            }
+        }
+
+        return $results;
+    }
 }

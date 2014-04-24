@@ -108,7 +108,7 @@ class ApiController extends AppController {
             )
         );
 
-        $this->Auth->allow('test', 'isLoggedIn', 'login', 'loginSocial', 'signup', 'nearBy', 'profile', 'encounter');
+        $this->Auth->allow('test', 'isLoggedIn', 'hasMember', 'login', 'loginSocial', 'signup', 'nearBy', 'profile', 'encounter');
 
         if($this->test_user){
             $this->_manualLogin($this->test_user);
@@ -367,6 +367,27 @@ class ApiController extends AppController {
 
     public function isLoggedIn() {
         $this->output = $this->Auth->loggedIn();
+    }
+
+    public function hasMember(){
+        $mail_or_nickname = @$this->request->query['find'];
+
+        if(empty($mail_or_nickname)){
+            $this->errors = __('Please enter email or nickname to check user.');
+            return;
+        }
+
+        $count = $this->User->find('count', array(
+            'conditions' => array(
+                'OR' => array(
+                    'UserInfo.nickname' => $mail_or_nickname,
+                    'User.mail' => $mail_or_nickname
+                )
+            ),
+            'recursive' => 0
+        ));
+
+        $this->output = ($count > 0);
     }
 
     public function me() {

@@ -182,11 +182,6 @@ class ApiController extends AppController {
      */
 
     public function login() {
-        if ($this->Auth->loggedIn()) {
-            $this->output = $this->Auth->user();
-            return;
-        }
-
         if (isset($this->request->data['mail'])) {
             $this->request->data['User'] = array(
                 'mail' => @$this->request->data['mail'],
@@ -204,6 +199,11 @@ class ApiController extends AppController {
             return;
         }
 
+        if ($this->Auth->loggedIn()) {
+            $this->output = $this->Auth->user();
+            return;
+        }
+
         $this->errors = __('You are not logged in.');
     }
 
@@ -217,6 +217,13 @@ class ApiController extends AppController {
         }
 
         $this->errors = __('Please provide SNS\'s type and id');
+    }
+
+    public function logout(){
+        $this->Auth->logout();
+        $this->Session->renew();
+
+        $this->output = true;
     }
 
     public function signup() {

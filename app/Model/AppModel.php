@@ -71,6 +71,8 @@ class AppModel extends Model {
         $alias = $this->alias;
 
         foreach($results as $index => $item){
+            if(!isset($item[$alias])) continue;
+
             foreach($item[$alias] as $column => $data){
                 $type = $this->getColumnType($column);
 

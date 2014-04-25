@@ -33,7 +33,7 @@ class UserInfo extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			),
             'format' => array(
-                'rule' => '^[A-Za-z0-9]+[A-Za-z0-9_\.]*$',
+                'rule' => '/^[A-Za-z0-9]+[A-Za-z0-9_\.]*$/',
                 'message' => 'Only characters 0-9, a-z and underscores can be used in nickname',
                 //'allowEmpty' => false,
                 //'required' => false,

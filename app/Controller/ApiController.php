@@ -269,8 +269,9 @@ class ApiController extends AppController {
         if (isset($this->request->data['nickname']))
             $default['UserInfo']['nickname'] = $this->request->data['nickname'];
 
-        if (isset($this->request->data['birthdate']))
-            $default['UserInfo']['birthdate'] = $this->request->data['birthdate'];
+        if (isset($this->request->data['birthdate'])){
+            $default['UserInfo']['birthdate'] = date('Y-m-d', strtotime($this->request->data['birthdate']));
+        }
 
         if (isset($this->request->data['search_purpose']))
             $default['SearchSetting']['search_purpose'] = $this->request->data['search_purpose'];

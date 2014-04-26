@@ -24,14 +24,14 @@ class UserInfo extends AppModel {
 			),
 		),
 		'nickname' => array(
-			'notEmpty' => array(
+			/*'notEmpty' => array(
 				'rule' => array('notEmpty'),
 				'message' => 'Please choose a nickname',
 				//'allowEmpty' => false,
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
+			),*/
             'format' => array(
                 'rule' => '/^[A-Za-z0-9]+[A-Za-z0-9_\.]*$/',
                 'message' => 'Only characters 0-9, a-z and underscores can be used in nickname',

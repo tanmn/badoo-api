@@ -739,7 +739,7 @@ class User extends AppModel {
             if(!empty($my_id)){
                 $friend_ids = array();
 
-                $friends = $this->FriendRequest->find('list', array(
+                $friends = $this->FriendRequest->find('all', array(
                     'conditions' => array(
                         'FriendRequest.accepted_flg' => FLAG_ON,
                         'OR' => array(
@@ -753,9 +753,9 @@ class User extends AppModel {
                 if(!empty($friends)){
                     $friend_ids = array();
 
-                    foreach($friends as $user1 => $user2){
-                        $friend_ids[] = $user1;
-                        $friend_ids[] = $user2;
+                    foreach($friends as $item){
+                        $friend_ids[] = $item['FriendRequest']['user_id'];
+                        $friend_ids[] = $item['FriendRequest']['user_friend_id'];
                     }
 
                     $friend_ids = array_unique($friend_ids);

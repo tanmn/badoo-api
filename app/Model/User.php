@@ -408,17 +408,34 @@ class User extends AppModel {
             return false;
         }
 
-        $request = $this->FriendRequest->findByUserFriendId($from_id);
+        $request = $this->FriendRequest->find('first', array(
+            'conditions' => array(
+                'user_friend_id' => $from_id,
+                'user_id' => $target_id
+            )
+        ));
 
         if(!empty($request)){
             return $this->FriendRequest->acceptRequest($request['FriendRequest']['id']);
         }
 
-        $this->create();
-        $this->data['User']['id'] = $from_id;
-        $this->data['Friend']['id'] = $target_id;
+        $invite = $this->FriendRequest->find('first', array(
+            'conditions' => array(
+                'user_friend_id' => $target_id,
+                'user_id' => $from_id
+            )
+        ));
 
-        return $this->saveAssociated($this->data);
+        if(!empty($invite)){
+            return TRUE;
+        }
+
+        $this->FriendRequest->create();
+        return $this->FriendRequest->save(array(
+            'user_friend_id' => $target_id,
+            'user_id' => $from_id,
+            'accepted_flg' => FLAG_OFF
+        ));
     }
 
     public function removeFriend($target_id, $from_id = NULL){
@@ -462,11 +479,22 @@ class User extends AppModel {
             return false;
         }
 
-        $this->create();
-        $this->data['Visitor']['id'] = $from_id;
-        $this->data['User']['id']    = $target_id;
+        $exist = $this->Visitor->UserVisitorList->find('first', array(
+            'conditions' => array(
+                'user_id' => $target_id,
+                'user_visitor_id' => $from_id
+            )
+        ));
 
-        return $this->saveAssociated($this->data);
+        if(!empty($exist)){
+            return TRUE;
+        }
+
+        $this->Visitor->UserVisitorList->create();
+        return $this->Visitor->UserVisitorList->save(array(
+            'user_id' => $target_id,
+            'user_visitor_id' => $from_id
+        ));
     }
 
     public function isBlocked($target_id, $from_id = NULL){
@@ -491,11 +519,22 @@ class User extends AppModel {
             return false;
         }
 
-        $this->create();
-        $this->data['Blocked']['id'] = $target_id;
-        $this->data['User']['id']    = $from_id;
+        $exist = $this->Blocked->UserBlockedList->find('first', array(
+            'conditions' => array(
+                'user_blocked_id' => $target_id,
+                'user_id' => $from_id
+            )
+        ));
 
-        return $this->saveAssociated($this->data);
+        if(!empty($exist)){
+            return TRUE;
+        }
+
+        $this->Blocked->UserBlockedList->create();
+        return $this->Blocked->UserBlockedList->save(array(
+            'user_blocked_id' => $target_id,
+            'user_id' => $from_id
+        ));
     }
 
     public function unblockPeople($target_id, $from_id = NULL){
@@ -531,11 +570,22 @@ class User extends AppModel {
             return false;
         }
 
-        $this->create();
-        $this->data['Liked']['id'] = $target_id;
-        $this->data['User']['id']    = $from_id;
+        $exist = $this->Liked->UserLikedList->find('first', array(
+            'conditions' => array(
+                'user_like_id' => $target_id,
+                'user_id' => $from_id
+            )
+        ));
 
-        return $this->saveAssociated($this->data);
+        if(!empty($exist)){
+            return TRUE;
+        }
+
+        $this->Liked->UserLikedList->create();
+        return $this->Liked->UserLikedList->save(array(
+            'user_like_id' => $target_id,
+            'user_id' => $from_id
+        ));
     }
 
     public function unlikePeople($target_id, $from_id = NULL){
@@ -584,11 +634,22 @@ class User extends AppModel {
             return false;
         }
 
-        $this->create();
-        $this->data['Favorite']['id'] = $target_id;
-        $this->data['User']['id']    = $from_id;
+        $exist = $this->Favorite->UserFavList->find('first', array(
+            'conditions' => array(
+                'user_id' => $from_id,
+                'fav_user_id' => $target_id
+            )
+        ));
 
-        return $this->saveAssociated($this->data);
+        if(!empty($exist)){
+            return TRUE;
+        }
+
+        $this->Favorite->UserFavList->create();
+        return $this->Favorite->UserFavList->save(array(
+            'user_id' => $from_id,
+            'fav_user_id' => $target_id
+        ));
     }
 
     public function unfollowPeople($target_id, $from_id = NULL){

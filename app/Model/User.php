@@ -32,6 +32,10 @@ class User extends AppModel {
  *
  * @var array
  */
+    public $virtualFields = array(
+        'is_online' => "TIMESTAMPDIFF(SECOND, last_active, NOW()) < 600"
+    );
+
 	public $validate = array(
 		'mail' => array(
 			'notEmpty' => array(
@@ -319,6 +323,7 @@ class User extends AppModel {
             if(empty($user[$this->alias]['id'])) continue;
 
             $results[$i][$this->alias]['avatar'] = $this->getAvatarURL($user[$this->alias]['id']);
+            $results[$i][$this->alias]['is_online'] = empty($user[$this->alias]['is_online']) ? false : true;
         }
 
         return $results;
@@ -352,6 +357,10 @@ class User extends AppModel {
         ));
 
         return empty($result) ? null : $result['SnsInfo']['user_id'];
+    }
+
+    public function active(){
+        $this->saveField('last_active', $this->getDataSource()->expression('NOW()'));
     }
 
     public function updateInfo($data, $id = NULL){

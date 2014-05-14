@@ -116,6 +116,7 @@ class ApiController extends AppController {
 
         if ($this->Auth->loggedIn()) {
             $this->User->id = $this->Auth->user('id');
+            $this->User->active();
         }
     }
 

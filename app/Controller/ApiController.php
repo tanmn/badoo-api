@@ -580,6 +580,7 @@ class ApiController extends AppController {
 
     public function friendList() {
         $this->paginate['findType'] = 'friends';
+        $this->paginate['contain'] = array('UserInfo.nickname');
         $this->output = $this->paginate('User');
     }
 

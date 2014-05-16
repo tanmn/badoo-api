@@ -582,15 +582,19 @@ class ApiController extends AppController {
     public function friendList() {
         $this->paginate['findType'] = 'friends';
         $this->paginate['contain'] = array('UserInfo.nickname');
-        $this->output['Friends'] = $this->paginate('User');
 
         $this->User->FriendRequest->recursive = 0;
-        $this->output['FriendRequest'] = $this->User->FriendRequest->find('count', array(
+        $request_count = $this->User->FriendRequest->find('count', array(
             'conditions' => array(
                 'accepted_flg' => FALSE,
                 'user_friend_id' => $this->Auth->user('id')
             )
         ));
+
+        $this->output = array(
+            'Friends' => $this->paginate('User'),
+            'request_count' => $request_count
+        );
     }
 
     public function friendRequests() {

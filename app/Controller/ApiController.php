@@ -396,7 +396,12 @@ class ApiController extends AppController {
         $current_user = $this->Auth->user();
 
         $this->User->FriendRequest->recursive = 0;
-        $current_user['FriendRequest'] = $this->User->FriendRequest->findAllByUserFriendId($this->Auth->user('id'));
+        $current_user['FriendRequest'] = $this->User->FriendRequest->find('count', array(
+            'conditions' => array(
+                'accepted_flag' => FALSE,
+                'user_friend_id' => $this->Auth->user('id')
+            )
+        ));
 
         $this->output = $current_user;
     }
@@ -591,7 +596,12 @@ class ApiController extends AppController {
 
     public function friendRequests() {
         $this->User->FriendRequest->recursive = 0;
-        $this->output = $this->User->FriendRequest->findAllByUserFriendId($this->Auth->user('id'));
+        $this->output = $this->User->FriendRequest->find('all', array(
+            'conditions' => array(
+                'accepted_flag' => FALSE,
+                'user_friend_id' => $this->Auth->user('id')
+            )
+        ));
     }
 
     public function addFriend($user_id = '') {

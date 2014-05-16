@@ -192,7 +192,7 @@ class ApiController extends AppController {
             $this->Auth->logout();
 
             if ($this->Auth->login()) {
-                $this->output = $this->Auth->user();
+                $this->me();
             } else {
                 $this->errors = __('Email and password are incorrect.');
             }
@@ -201,7 +201,7 @@ class ApiController extends AppController {
         }
 
         if ($this->Auth->loggedIn()) {
-            $this->output = $this->Auth->user();
+            $this->me();
             return;
         }
 
@@ -393,7 +393,12 @@ class ApiController extends AppController {
     }
 
     public function me() {
-        $this->output = $this->Auth->user();
+        $current_user = $this->Auth->user();
+
+        $this->User->FriendRequest->recursive = 0;
+        $current_user['FriendRequest'] = $this->User->FriendRequest->findAllByUserFriendId($this->Auth->user('id'));
+
+        $this->output = $current_user;
     }
 
     public function profile($id = NULL) {

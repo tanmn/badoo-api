@@ -71,6 +71,7 @@ class AppModel extends Model {
         $alias = $this->alias;
 
         foreach($results as $index => $item){
+            if(!is_array($item)) continue;
             if(!isset($item[$alias])) continue;
 
             foreach($item[$alias] as $column => $data){

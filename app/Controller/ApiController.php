@@ -603,7 +603,8 @@ class ApiController extends AppController {
             'conditions' => array(
                 'accepted_flg' => FALSE,
                 'user_friend_id' => $this->Auth->user('id')
-            )
+            ),
+            'contain' => array('FromUser.UserInfo')
         ));
     }
 

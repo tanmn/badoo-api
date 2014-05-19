@@ -7,6 +7,7 @@ App::uses('AppModel', 'Model');
  * @property UserFriend $UserFriend
  */
 class UserFriendList extends AppModel {
+    public $actsAs = array('Containable');
 
 /**
  * Validation rules

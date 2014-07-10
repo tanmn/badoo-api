@@ -16,7 +16,7 @@ class CreateAlbumphotosTable extends Migration {
             $table->integer('album_id')->nullable();
             $table->string('photo', 255);
             $table->dateTime('created');
-            $table->dateTime('modified');
+            $table->dateTime('modified')->nullable();
         });
     }
 

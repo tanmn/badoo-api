@@ -31,7 +31,7 @@ class CreateUserinfosTable extends Migration {
             $table->string('nameSocial_fb', 200)->nullable();
             $table->string('nameSocial_tw', 200)->nullable();
             $table->string('data_search', 255)->nullable();
-            $table->dateTime('created')->nullable();
+            $table->dateTime('created');
             $table->dateTime('modified')->nullable();
         });
     }

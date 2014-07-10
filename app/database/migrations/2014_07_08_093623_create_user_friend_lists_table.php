@@ -19,7 +19,7 @@ class CreateUserfriendlistsTable extends Migration {
             $table->boolean('deleted_flg');
             $table->integer('read_flg')->nullable();
             $table->dateTime('created');
-            $table->dateTime('modified');
+            $table->dateTime('modified')->nullable();
         });
     }
 

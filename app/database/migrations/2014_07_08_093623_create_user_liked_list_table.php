@@ -16,7 +16,7 @@ class CreateUserlikedlistTable extends Migration {
             $table->integer('user_id');
             $table->integer('user_like_id');
             $table->dateTime('created');
-            $table->dateTime('modified');
+            $table->dateTime('modified')->nullable();
         });
     }
 

@@ -17,7 +17,7 @@ class CreateInterestTable extends Migration {
             $table->string('name', 255);
             $table->integer('used_time');
             $table->boolean('approve_flg');
-            $table->dateTime('created')->nullable();
+            $table->dateTime('created');
             $table->dateTime('modified')->nullable();
         });
     }
